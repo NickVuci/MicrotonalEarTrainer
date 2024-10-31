@@ -8,6 +8,9 @@ let incorrectCount = 0;
 function updateScoreDisplay() {
     document.getElementById('correctScore').textContent = `Correct: ${correctCount}`;
     document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectCount}`;
+    // Save to Local Storage (optional, for persistence)
+    localStorage.setItem('correctCount', correctCount);
+    localStorage.setItem('incorrectCount', incorrectCount);
 }
 
 // Function to increment correct score
@@ -33,3 +36,12 @@ function resetScores() {
 window.incrementCorrect = incrementCorrect;
 window.incrementIncorrect = incrementIncorrect;
 window.resetScores = resetScores;
+
+// Initialize scores from Local Storage on load (optional)
+window.onload = function() {
+    const savedCorrect = parseInt(localStorage.getItem('correctCount'));
+    const savedIncorrect = parseInt(localStorage.getItem('incorrectCount'));
+    if (!isNaN(savedCorrect)) correctCount = savedCorrect;
+    if (!isNaN(savedIncorrect)) incorrectCount = savedIncorrect;
+    updateScoreDisplay();
+}

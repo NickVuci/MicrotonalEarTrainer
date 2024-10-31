@@ -63,17 +63,17 @@ document.getElementById('generateButton').addEventListener('click', () => {
 function generateEDOIntervals(edo) {
     // Add the octave interval
     intervals.push({
-        label: `${edo}\\${edo}`,
+        label: `2/1`, // Using fraction notation for consistency
         ratio: 2,
-        cents: 1200 * Math.log2(2), // 1200 cents
+        cents: 1200, // 2/1 is always 1200 cents
         index: 0
     });
     // Add other intervals
     for (let i = 1; i < edo; i++) {
         const ratio = Math.pow(2, i / edo);
-        const cents = 1200 * Math.log2(ratio);
+        const cents = 1200 * i / edo;
         intervals.push({
-            label: `${i}\\${edo}`,
+            label: `${i}/${edo}`,
             ratio: ratio,
             cents: cents,
             index: i
@@ -87,8 +87,7 @@ function generateJIIntervals(primeLimit, oddLimit) {
     intervals.push({
         label: '2/1',
         ratio: 2,
-        cents: 1200 * Math.log2(2), // 1200 cents
-        index: 0
+        cents: 1200 // 2/1 is always 1200 cents
     });
 
     const primes = getPrimesUpTo(primeLimit);
@@ -130,15 +129,7 @@ function generateJIIntervals(primeLimit, oddLimit) {
     // Sort by cents
     uniqueFractions.sort((a, b) => a.cents - b.cents);
 
-    // Assign indices starting from 1 (0 is the octave)
-    uniqueFractions.forEach((fraction, idx) => {
-        intervals.push({
-            label: fraction.label,
-            ratio: fraction.ratio,
-            cents: fraction.cents,
-            index: idx + 1
-        });
-    });
+    intervals = intervals.concat(uniqueFractions);
 }
 
 // Function to check if a JI interval is valid based on prime factors
@@ -211,6 +202,13 @@ function displayIntervals() {
     const radius = container.offsetWidth / 2 - 60;
 
     const totalIntervals = intervals.length;
+
+    // Calculate the maximum circle size based on the total number of intervals
+    const maxCircleDiameter = 80; // Maximum diameter in pixels
+    const minCircleDiameter = 40; // Minimum diameter in pixels
+    const calculatedDiameter = 1500 / totalIntervals; // Heuristic formula
+    const circleDiameter = Math.max(minCircleDiameter, Math.min(maxCircleDiameter, calculatedDiameter));
+
     intervals.forEach((interval, index) => {
         const angle = (index / totalIntervals) * 2 * Math.PI - Math.PI / 2;
         const x = centerX + radius * Math.cos(angle);
@@ -222,6 +220,17 @@ function displayIntervals() {
         point.style.top = `${y}px`;
         point.textContent = interval.label;
         point.dataset.index = index;
+
+        // Set dynamic size
+        point.style.width = `${circleDiameter}px`;
+        point.style.height = `${circleDiameter}px`;
+        point.style.marginLeft = `-${circleDiameter / 2}px`; // Center horizontally
+        point.style.marginTop = `-${circleDiameter / 2}px`;  // Center vertically
+
+        // Adjust font size based on circle size for better readability
+        const fontSize = Math.min(16, circleDiameter / 5);
+        point.style.fontSize = `${fontSize}px`;
+
         point.addEventListener('click', handleIntervalClick);
         container.appendChild(point);
     });
@@ -311,51 +320,6 @@ function playInterval(ratio, method) {
     }, duration * 1000);
 }
 
-// Function to map interval labels to standard names (optional)
-function getIntervalName(label) {
-    const edoNames = {
-        // Example for 12-EDO; extend as needed
-        "1\\12": "Minor Second",
-        "2\\12": "Major Second",
-        "3\\12": "Minor Third",
-        "4\\12": "Major Third",
-        "5\\12": "Perfect Fourth",
-        "6\\12": "Tritone",
-        "7\\12": "Perfect Fifth",
-        "8\\12": "Minor Sixth",
-        "9\\12": "Major Sixth",
-        "10\\12": "Minor Seventh",
-        "11\\12": "Major Seventh",
-        "12\\12": "Octave"
-    };
-
-    const jiNames = {
-        // Example for simple JI; extend as needed
-        "3/2": "Perfect Fifth",
-        "4/3": "Perfect Fourth",
-        "5/4": "Major Third",
-        "6/5": "Minor Third",
-        "5/3": "Major Sixth",
-        "8/5": "Minor Sixth",
-        "9/5": "Major Seventh",
-        "16/9": "Minor Seventh",
-        "2/1": "Octave"
-    };
-
-    // Check EDO first
-    if (edoNames[label]) {
-        return edoNames[label];
-    }
-
-    // Then check JI
-    if (jiNames[label]) {
-        return jiNames[label];
-    }
-
-    // If no name found, return the label itself
-    return label;
-}
-
 // Handle Interval Clicks
 function handleIntervalClick(event) {
     const selectedIndex = parseInt(event.currentTarget.dataset.index);
@@ -364,6 +328,8 @@ function handleIntervalClick(event) {
     if (correctInterval && selectedInterval.label === correctInterval.label) {
         event.currentTarget.style.backgroundColor = 'green';
         document.getElementById('feedback').textContent = '🎉 Correct!';
+        // Display cent value and name of the correct interval
+        document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
         // Increment correct score
         if (typeof incrementCorrect === 'function') {
             incrementCorrect();
@@ -377,20 +343,13 @@ function handleIntervalClick(event) {
             const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
             correctPoint.style.backgroundColor = 'green';
         }
+        // Display cent value and name of the correct interval
+        document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
         // Increment incorrect score
         if (typeof incrementIncorrect === 'function') {
             incrementIncorrect();
         }
     }
-
-    // Display cent value and interval name
-    const intervalName = getIntervalName(correctInterval.label);
-    const cents = correctInterval.cents.toFixed(2);
-    document.getElementById('correctInterval').innerHTML = `
-        The correct interval was <strong>${correctInterval.label}</strong>.<br>
-        Cent Value: <strong>${cents} cents</strong><br>
-        Interval Name: <strong>${intervalName}</strong>
-    `;
 }
 
 // Reset Interval Points to Default Color

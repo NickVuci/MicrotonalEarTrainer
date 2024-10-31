@@ -88,16 +88,19 @@ h1 {
 
 .interval-point {
     position: absolute;
-    width: 80px;
-    height: 80px;
-    margin: -40px; /* Half of width/height to center */
+    /* Removed fixed width and height */
+    /* The size will be set dynamically via JavaScript */
     border-radius: 50%;
     background-color: #f0f0f0;
-    line-height: 80px;
+    line-height: normal; /* Adjusted for dynamic sizing */
     text-align: center;
     cursor: pointer;
     transition: background-color 0.3s;
     font-size: 14px;
+    /* Center the text vertically */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #playButton {
@@ -132,11 +135,12 @@ h1 {
 
 #correctInterval {
     position: absolute;
-    top: 30%;
+    top: 35%; /* Adjusted to position beneath feedback */
     left: 50%;
     transform: translateX(-50%);
     font-size: 16px;
     color: #555;
+    font-weight: bold;
 }
 
 #scoreBoard {
