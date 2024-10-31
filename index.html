@@ -37,8 +37,15 @@
             <label><input type="checkbox" id="playDescending" checked> Play Descending</label>
         </div>
         <br>
+        <!-- Root Frequency Input -->
+        <div id="rootFrequency">
+            <label>Root Frequency (Hz):
+                <input type="number" id="baseFrequencyInput" value="440.0" min="20" max="20000" step="0.1" maxlength="6">
+            </label>
+        </div>
+        <br>
         <button id="generateButton">Generate Intervals</button>
-        <!-- Optional Reset Score Button -->
+        <!-- Reset Score Button -->
         <button id="resetScoreButton">Reset Scores</button>
     </div>
 

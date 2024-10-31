@@ -22,8 +22,7 @@ function incrementIncorrect() {
     updateScoreDisplay();
 }
 
-// Function to reset scores (optional)
-// You can call this function if you want to provide a reset feature
+// Function to reset scores
 function resetScores() {
     correctCount = 0;
     incorrectCount = 0;

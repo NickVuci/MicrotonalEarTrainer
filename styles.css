@@ -35,6 +35,16 @@ h1 {
     font-size: 14px;
 }
 
+#rootFrequency label {
+    font-size: 16px;
+}
+
+#rootFrequency input[type="number"] {
+    width: 80px;
+    padding: 5px;
+    margin-left: 5px;
+}
+
 #generateButton {
     padding: 8px 16px;
     margin-top: 10px;
@@ -48,6 +58,22 @@ h1 {
 
 #generateButton:hover {
     background-color: #218838;
+}
+
+/* Reset Score Button Styling */
+#resetScoreButton {
+    padding: 8px 16px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#resetScoreButton:hover {
+    background-color: #c82333;
 }
 
 #container {

@@ -7,6 +7,9 @@ const audioCtx = new AudioContext();
 let intervals = [];
 let correctInterval = null;
 
+// Default base frequency
+let baseFrequency = 440.0; // A4
+
 // Event listeners for tuning selection
 document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
     elem.addEventListener('change', function(event) {
@@ -18,6 +21,19 @@ document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
             document.getElementById('jiSettings').style.display = 'block';
         }
     });
+});
+
+// Event listener for root frequency input
+document.getElementById('baseFrequencyInput').addEventListener('change', () => {
+    const input = parseFloat(document.getElementById('baseFrequencyInput').value);
+    if (isNaN(input) || input < 20 || input > 20000) {
+        alert('Please enter a valid frequency between 20 Hz and 20,000 Hz.');
+        // Reset to default if invalid
+        baseFrequency = 440.0;
+        document.getElementById('baseFrequencyInput').value = baseFrequency.toFixed(1);
+    } else {
+        baseFrequency = input;
+    }
 });
 
 // Generate intervals based on settings
@@ -49,13 +65,17 @@ function generateEDOIntervals(edo) {
     intervals.push({
         label: `${edo}\\${edo}`,
         ratio: 2,
+        cents: 1200 * Math.log2(2), // 1200 cents
         index: 0
     });
     // Add other intervals
     for (let i = 1; i < edo; i++) {
+        const ratio = Math.pow(2, i / edo);
+        const cents = 1200 * Math.log2(ratio);
         intervals.push({
             label: `${i}\\${edo}`,
-            ratio: Math.pow(2, i / edo),
+            ratio: ratio,
+            cents: cents,
             index: i
         });
     }
@@ -67,7 +87,8 @@ function generateJIIntervals(primeLimit, oddLimit) {
     intervals.push({
         label: '2/1',
         ratio: 2,
-        cents: 1200 * Math.log2(2) // 1200 cents
+        cents: 1200 * Math.log2(2), // 1200 cents
+        index: 0
     });
 
     const primes = getPrimesUpTo(primeLimit);
@@ -109,7 +130,15 @@ function generateJIIntervals(primeLimit, oddLimit) {
     // Sort by cents
     uniqueFractions.sort((a, b) => a.cents - b.cents);
 
-    intervals = intervals.concat(uniqueFractions);
+    // Assign indices starting from 1 (0 is the octave)
+    uniqueFractions.forEach((fraction, idx) => {
+        intervals.push({
+            label: fraction.label,
+            ratio: fraction.ratio,
+            cents: fraction.cents,
+            index: idx + 1
+        });
+    });
 }
 
 // Function to check if a JI interval is valid based on prime factors
@@ -233,7 +262,6 @@ document.getElementById('playButton').addEventListener('click', () => {
 // Function to play the selected interval based on the chosen method
 function playInterval(ratio, method) {
     const duration = 1.5;
-    const baseFrequency = 440; // A4
     const frequency = baseFrequency * ratio;
 
     // Create Oscillators and Gain Nodes
@@ -283,6 +311,51 @@ function playInterval(ratio, method) {
     }, duration * 1000);
 }
 
+// Function to map interval labels to standard names (optional)
+function getIntervalName(label) {
+    const edoNames = {
+        // Example for 12-EDO; extend as needed
+        "1\\12": "Minor Second",
+        "2\\12": "Major Second",
+        "3\\12": "Minor Third",
+        "4\\12": "Major Third",
+        "5\\12": "Perfect Fourth",
+        "6\\12": "Tritone",
+        "7\\12": "Perfect Fifth",
+        "8\\12": "Minor Sixth",
+        "9\\12": "Major Sixth",
+        "10\\12": "Minor Seventh",
+        "11\\12": "Major Seventh",
+        "12\\12": "Octave"
+    };
+
+    const jiNames = {
+        // Example for simple JI; extend as needed
+        "3/2": "Perfect Fifth",
+        "4/3": "Perfect Fourth",
+        "5/4": "Major Third",
+        "6/5": "Minor Third",
+        "5/3": "Major Sixth",
+        "8/5": "Minor Sixth",
+        "9/5": "Major Seventh",
+        "16/9": "Minor Seventh",
+        "2/1": "Octave"
+    };
+
+    // Check EDO first
+    if (edoNames[label]) {
+        return edoNames[label];
+    }
+
+    // Then check JI
+    if (jiNames[label]) {
+        return jiNames[label];
+    }
+
+    // If no name found, return the label itself
+    return label;
+}
+
 // Handle Interval Clicks
 function handleIntervalClick(event) {
     const selectedIndex = parseInt(event.currentTarget.dataset.index);
@@ -304,12 +377,20 @@ function handleIntervalClick(event) {
             const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
             correctPoint.style.backgroundColor = 'green';
         }
-        document.getElementById('correctInterval').textContent = `The correct interval was ${correctInterval.label}`;
         // Increment incorrect score
         if (typeof incrementIncorrect === 'function') {
             incrementIncorrect();
         }
     }
+
+    // Display cent value and interval name
+    const intervalName = getIntervalName(correctInterval.label);
+    const cents = correctInterval.cents.toFixed(2);
+    document.getElementById('correctInterval').innerHTML = `
+        The correct interval was <strong>${correctInterval.label}</strong>.<br>
+        Cent Value: <strong>${cents} cents</strong><br>
+        Interval Name: <strong>${intervalName}</strong>
+    `;
 }
 
 // Reset Interval Points to Default Color
@@ -320,7 +401,7 @@ function resetIntervalPoints() {
     });
 }
 
-// Event listener for Reset Score button (optional)
+// Event listener for Reset Score button
 document.getElementById('resetScoreButton').addEventListener('click', () => {
     if (typeof resetScores === 'function') {
         resetScores();
