@@ -7,6 +7,14 @@ const audioCtx = new AudioContext();
 let intervals = [];
 let correctInterval = null;
 
+// Playback Control Variables
+let isPlaying = false; // Flag to track playback state
+let currentOscillators = []; // Array to store current oscillators
+let playbackTimeout = null; // Reference to the playback timeout
+
+// Guess Control Variable
+let hasGuessed = false; // Flag to track if the user has made a guess
+
 // Default base frequency
 let baseFrequency = 440.0; // A4
 
@@ -243,6 +251,16 @@ document.getElementById('playButton').addEventListener('click', () => {
         return;
     }
 
+    // Prevent initiating a new playback if one is already in progress
+    if (isPlaying) {
+        alert('Playback is already in progress. Please wait until it finishes.');
+        return;
+    }
+
+    // Disable the Play button
+    const playButton = document.getElementById('playButton');
+    playButton.disabled = true;
+
     // Retrieve playback options
     const playTogether = document.getElementById('playTogether').checked;
     const playAscending = document.getElementById('playAscending').checked;
@@ -262,6 +280,12 @@ document.getElementById('playButton').addEventListener('click', () => {
     correctInterval = intervals[randomIndex];
     const selectedMethod = playbackMethods[Math.floor(Math.random() * playbackMethods.length)];
 
+    // Reset guess state
+    hasGuessed = false;
+    // Enable interval points
+    enableIntervalPoints();
+
+    // Start playback
     playInterval(correctInterval.ratio, selectedMethod);
     document.getElementById('feedback').textContent = '';
     document.getElementById('correctInterval').textContent = '';
@@ -295,33 +319,37 @@ function playInterval(ratio, method) {
     oscillator2.connect(gainNode2);
     gainNode2.connect(audioCtx.destination);
 
-    if (method === 'together') {
-        // Play both notes simultaneously
-        oscillator1.start();
-        oscillator2.start();
-    } else if (method === 'ascending') {
-        // Play root first, then interval
-        oscillator1.start();
-        oscillator1.stop(audioCtx.currentTime + duration / 2);
-        oscillator2.start(audioCtx.currentTime + duration / 2);
-        oscillator2.stop(audioCtx.currentTime + duration);
-    } else if (method === 'descending') {
-        // Play interval first, then root
-        oscillator2.start();
-        oscillator2.stop(audioCtx.currentTime + duration / 2);
-        oscillator1.start(audioCtx.currentTime + duration / 2);
-        oscillator1.stop(audioCtx.currentTime + duration);
-    }
+    // Start playback
+    oscillator1.start();
+    oscillator2.start();
 
-    // Stop Oscillators after duration
-    setTimeout(() => {
+    // Store oscillators for potential future control
+    currentOscillators.push(oscillator1, oscillator2);
+
+    // Update playback state
+    isPlaying = true;
+
+    // Schedule stopping the oscillators after the duration
+    playbackTimeout = setTimeout(() => {
         oscillator1.stop();
         oscillator2.stop();
+        isPlaying = false;
+        currentOscillators = [];
+        // Re-enable the Play button
+        const playButton = document.getElementById('playButton');
+        playButton.disabled = false;
     }, duration * 1000);
 }
 
 // Handle Interval Clicks
 function handleIntervalClick(event) {
+    // If the user has already guessed, ignore further clicks
+    if (hasGuessed) {
+        return;
+    }
+
+    hasGuessed = true; // Set the guess flag
+
     const selectedIndex = parseInt(event.currentTarget.dataset.index);
     const selectedInterval = intervals[selectedIndex];
 
@@ -350,6 +378,27 @@ function handleIntervalClick(event) {
             incrementIncorrect();
         }
     }
+
+    // Disable further guesses by disabling all interval points
+    disableIntervalPoints();
+}
+
+// Function to disable interval points (prevent further clicks)
+function disableIntervalPoints() {
+    const points = document.querySelectorAll('.interval-point');
+    points.forEach(point => {
+        point.style.pointerEvents = 'none'; // Disable pointer events
+        point.style.opacity = '0.6'; // Optional: reduce opacity to indicate disabled state
+    });
+}
+
+// Function to enable interval points (allow clicks)
+function enableIntervalPoints() {
+    const points = document.querySelectorAll('.interval-point');
+    points.forEach(point => {
+        point.style.pointerEvents = 'auto'; // Enable pointer events
+        point.style.opacity = '1'; // Restore opacity
+    });
 }
 
 // Reset Interval Points to Default Color

@@ -95,7 +95,7 @@ h1 {
     line-height: normal; /* Adjusted for dynamic sizing */
     text-align: center;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
     font-size: 14px;
     /* Center the text vertically */
     display: flex;
@@ -121,6 +121,13 @@ h1 {
 
 #playButton:hover {
     background-color: #0056b3;
+}
+
+/* Play Button Disabled State */
+#playButton:disabled {
+    background-color: #6c757d; /* Gray color */
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 #feedback {
@@ -161,4 +168,9 @@ h1 {
 
 #incorrectScore {
     color: red;
+}
+
+/* Hover Effect for Interval Points */
+.interval-point:hover {
+    transform: scale(1.1);
 }
