@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Microtonal Ear Training App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Microtonal Ear Training App</h1>
+
+    <div id="settings">
+        <label>
+            <input type="radio" name="tuning" value="edo" checked> EDO
+        </label>
+        <label>
+            <input type="radio" name="tuning" value="ji"> JI
+        </label>
+        <div id="edoSettings">
+            <label>EDO Value:
+                <input type="number" id="edoValue" value="12" min="1">
+            </label>
+        </div>
+        <div id="jiSettings" style="display:none;">
+            <label>Prime Limit:
+                <input type="number" id="primeLimit" value="5" min="2">
+            </label>
+            <label>Odd Limit:
+                <input type="number" id="oddLimit" value="11" min="3">
+            </label>
+        </div>
+        <br>
+        <!-- Playback Options -->
+        <div id="playbackOptions">
+            <label><input type="checkbox" id="playTogether" checked> Play Together</label>
+            <label><input type="checkbox" id="playAscending" checked> Play Ascending</label>
+            <label><input type="checkbox" id="playDescending" checked> Play Descending</label>
+        </div>
+        <br>
+        <button id="generateButton">Generate Intervals</button>
+    </div>
+
+    <div id="container">
+        <!-- Feedback Messages -->
+        <div id="feedback"></div>
+        <div id="correctInterval"></div>
+        <!-- Play Button -->
+        <button id="playButton">Play</button>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
