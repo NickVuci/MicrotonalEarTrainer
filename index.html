@@ -38,6 +38,8 @@
         </div>
         <br>
         <button id="generateButton">Generate Intervals</button>
+        <!-- Optional Reset Score Button -->
+        <button id="resetScoreButton">Reset Scores</button>
     </div>
 
     <div id="container">
@@ -46,8 +48,15 @@
         <div id="correctInterval"></div>
         <!-- Play Button -->
         <button id="playButton">Play</button>
+        <!-- Score Display -->
+        <div id="scoreBoard">
+            <span id="correctScore">Correct: 0</span>
+            <span id="incorrectScore">Incorrect: 0</span>
+        </div>
     </div>
 
+    <!-- Include JavaScript Files -->
     <script src="app.js"></script>
+    <script src="score.js"></script>
 </body>
 </html>
