@@ -67,21 +67,21 @@ document.getElementById('generateButton').addEventListener('click', () => {
     displayIntervals();
 });
 
-// Function to generate EDO intervals
+// Function to generate EDO intervals with "n\edo" notation
 function generateEDOIntervals(edo) {
     // Add the octave interval
     intervals.push({
-        label: `2/1`, // Using fraction notation for consistency
+        label: `2/1`, // Keeping octave as "2/1" since it's a standard JI interval
         ratio: 2,
         cents: 1200, // 2/1 is always 1200 cents
         index: 0
     });
-    // Add other intervals
+    // Add other EDO intervals with "n\edo" notation
     for (let i = 1; i < edo; i++) {
         const ratio = Math.pow(2, i / edo);
         const cents = 1200 * i / edo;
         intervals.push({
-            label: `${i}/${edo}`,
+            label: `${i}\\${edo}`, // Using double backslashes to represent a single backslash
             ratio: ratio,
             cents: cents,
             index: i
@@ -275,14 +275,16 @@ document.getElementById('playButton').addEventListener('click', () => {
     // If no options are selected, default to 'together'
     if (playbackMethods.length === 0) playbackMethods.push('together');
 
+    // Select a random playback method from the selected options
+    const selectedMethod = playbackMethods[Math.floor(Math.random() * playbackMethods.length)];
+
     // Select a random interval (including the octave)
     const randomIndex = Math.floor(Math.random() * intervals.length);
     correctInterval = intervals[randomIndex];
-    const selectedMethod = playbackMethods[Math.floor(Math.random() * playbackMethods.length)];
 
     // Reset guess state
     hasGuessed = false;
-    // Enable interval points
+    // Enable interval points (ensure they are clickable)
     enableIntervalPoints();
 
     // Start playback
@@ -319,9 +321,23 @@ function playInterval(ratio, method) {
     oscillator2.connect(gainNode2);
     gainNode2.connect(audioCtx.destination);
 
-    // Start playback
-    oscillator1.start();
-    oscillator2.start();
+    if (method === 'together') {
+        // Play both notes simultaneously
+        oscillator1.start();
+        oscillator2.start();
+    } else if (method === 'ascending') {
+        // Play root first, then interval
+        oscillator1.start();
+        oscillator1.stop(audioCtx.currentTime + duration / 2);
+        oscillator2.start(audioCtx.currentTime + duration / 2);
+        oscillator2.stop(audioCtx.currentTime + duration);
+    } else if (method === 'descending') {
+        // Play interval first, then root
+        oscillator2.start();
+        oscillator2.stop(audioCtx.currentTime + duration / 2);
+        oscillator1.start(audioCtx.currentTime + duration / 2);
+        oscillator1.stop(audioCtx.currentTime + duration);
+    }
 
     // Store oscillators for potential future control
     currentOscillators.push(oscillator1, oscillator2);
