@@ -55,7 +55,6 @@
             </label>
         </div>
         <br>
-        <button id="generateButton">Generate Intervals</button>
         <!-- Reset Score Button -->
         <button id="resetScoreButton">Reset Scores</button>
     </div>
@@ -74,8 +73,19 @@
     </div>
 
     <!-- Include JavaScript Files -->
-    <script src="waveform.js"></script> <!-- New Script for Waveform Selection -->
-    <script src="app.js"></script>
     <script src="score.js"></script>
+    <script src="waveform.js"></script> <!-- Script for Waveform Selection -->
+    <script src="app.js"></script>
+
+    <!-- Inline Script to Automatically Generate 12-EDO Intervals on Page Load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Directly call generateIntervals and displayIntervals
+            if (typeof generateIntervals === 'function' && typeof displayIntervals === 'function') {
+                generateIntervals();
+                displayIntervals();
+            }
+        });
+    </script>
 </body>
 </html>

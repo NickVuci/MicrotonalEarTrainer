@@ -18,17 +18,77 @@ let hasGuessed = false; // Flag to track if the user has made a guess
 // Default base frequency
 let baseFrequency = 440.0; // A4
 
+// Debounce Function to Limit the Rate of Function Calls
+function debounce(func, delay) {
+    let debounceTimer;
+    return function() {
+        const context = this;
+        const args = arguments;
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    }
+}
+
 // Event listeners for tuning selection
 document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
-    elem.addEventListener('change', function(event) {
-        if (event.target.value === 'edo') {
+    elem.addEventListener('change', debounce(() => {
+        if (elem.value === 'edo') {
             document.getElementById('edoSettings').style.display = 'block';
             document.getElementById('jiSettings').style.display = 'none';
         } else {
             document.getElementById('edoSettings').style.display = 'none';
             document.getElementById('jiSettings').style.display = 'block';
         }
-    });
+        generateIntervals();
+        displayIntervals();
+    }, 300));
+});
+
+// Event listener for EDO Value Change
+document.getElementById('edoValue').addEventListener('input', debounce(() => {
+    const edoValue = parseInt(document.getElementById('edoValue').value);
+    if (edoValue < 1 || isNaN(edoValue)) {
+        alert('Please enter a valid EDO value (minimum 1).');
+        // Reset to default if invalid
+        document.getElementById('edoValue').value = '12';
+        baseFrequency = 440.0;
+    } else {
+        // Update baseFrequency is already handled via existing event listener
+        generateIntervals();
+        displayIntervals();
+    }
+}, 300));
+
+// Event listener for JI Prime Limit Change
+document.getElementById('primeLimit').addEventListener('input', debounce(() => {
+    const primeLimit = parseInt(document.getElementById('primeLimit').value);
+    if (primeLimit < 2 || isNaN(primeLimit)) {
+        alert('Please enter a valid Prime Limit (minimum 2).');
+        // Reset to default if invalid
+        document.getElementById('primeLimit').value = '5';
+    } else {
+        generateIntervals();
+        displayIntervals();
+    }
+}, 300));
+
+// Event listener for JI Odd Limit Change
+document.getElementById('oddLimit').addEventListener('input', debounce(() => {
+    const oddLimit = parseInt(document.getElementById('oddLimit').value);
+    if (oddLimit < 3 || isNaN(oddLimit)) {
+        alert('Please enter a valid Odd Limit (minimum 3).');
+        // Reset to default if invalid
+        document.getElementById('oddLimit').value = '11';
+    } else {
+        generateIntervals();
+        displayIntervals();
+    }
+}, 300));
+
+// Event listener for waveform selection change
+document.getElementById('waveformSelect').addEventListener('change', () => {
+    // No need to regenerate intervals, playback will use the new waveform
+    // Optional: Provide visual feedback if necessary
 });
 
 // Event listener for root frequency input
@@ -44,8 +104,8 @@ document.getElementById('baseFrequencyInput').addEventListener('change', () => {
     }
 });
 
-// Generate intervals based on settings
-document.getElementById('generateButton').addEventListener('click', () => {
+// Function to generate intervals based on current settings
+function generateIntervals() {
     const tuning = document.querySelector('input[name="tuning"]:checked').value;
     intervals = [];
     if (tuning === 'edo') {
@@ -64,14 +124,14 @@ document.getElementById('generateButton').addEventListener('click', () => {
         }
         generateJIIntervals(primeLimit, oddLimit);
     }
-    displayIntervals();
-});
+    // No need to call displayIntervals() here as it's called in the event listeners
+}
 
-// Function to generate EDO intervals with "n\edo" notation
+// Function to generate EDO intervals with dynamic octave labeling
 function generateEDOIntervals(edo) {
-    // Add the octave interval
+    // Add the octave interval with "n\edo" notation
     intervals.push({
-        label: `2/1`, // Keeping octave as "2/1" since it's a standard JI interval
+        label: `${edo}\\${edo}`, // e.g., "12\12" for 12-EDO
         ratio: 2,
         cents: 1200, // 2/1 is always 1200 cents
         index: 0
@@ -81,7 +141,7 @@ function generateEDOIntervals(edo) {
         const ratio = Math.pow(2, i / edo);
         const cents = 1200 * i / edo;
         intervals.push({
-            label: `${i}\\${edo}`, // Using double backslashes to represent a single backslash
+            label: `${i}\\${edo}`, // e.g., "1\12", "2\12", etc.
             ratio: ratio,
             cents: cents,
             index: i
@@ -198,7 +258,7 @@ function gcd(a, b) {
     return gcd(b, a % b);
 }
 
-// Function to display intervals around the circle
+// Function to display intervals around the circle with differentiation between EDO and JI
 function displayIntervals() {
     const container = document.getElementById('container');
     // Remove existing interval points
@@ -225,7 +285,7 @@ function displayIntervals() {
         const point = document.createElement('div');
         point.className = 'interval-point';
 
-        // Differentiate EDO intervals by checking for backslash in the label
+        // Differentiate EDO and JI intervals based on label format
         if (interval.label.includes('\\')) {
             point.classList.add('edo-interval');
         } else {
