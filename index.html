@@ -37,6 +37,17 @@
             <label><input type="checkbox" id="playDescending" checked> Play Descending</label>
         </div>
         <br>
+        <!-- Waveform Selection -->
+        <div id="waveformSelection">
+            <label for="waveformSelect">Select Waveform:</label>
+            <select id="waveformSelect">
+                <option value="sine" selected>Sine</option>
+                <option value="square">Square</option>
+                <option value="sawtooth">Sawtooth</option>
+                <option value="triangle">Triangle</option>
+            </select>
+        </div>
+        <br>
         <!-- Root Frequency Input -->
         <div id="rootFrequency">
             <label>Root Frequency (Hz):
@@ -63,6 +74,7 @@
     </div>
 
     <!-- Include JavaScript Files -->
+    <script src="waveform.js"></script> <!-- New Script for Waveform Selection -->
     <script src="app.js"></script>
     <script src="score.js"></script>
 </body>

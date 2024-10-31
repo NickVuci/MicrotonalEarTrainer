@@ -224,6 +224,14 @@ function displayIntervals() {
 
         const point = document.createElement('div');
         point.className = 'interval-point';
+
+        // Differentiate EDO intervals by checking for backslash in the label
+        if (interval.label.includes('\\')) {
+            point.classList.add('edo-interval');
+        } else {
+            point.classList.add('ji-interval');
+        }
+
         point.style.left = `${x}px`;
         point.style.top = `${y}px`;
         point.textContent = interval.label;
@@ -299,6 +307,9 @@ function playInterval(ratio, method) {
     const duration = 1.5;
     const frequency = baseFrequency * ratio;
 
+    // Retrieve the selected waveform from waveform.js
+    const waveform = getSelectedWaveform(); // Function from waveform.js
+
     // Create Oscillators and Gain Nodes
     const oscillator1 = audioCtx.createOscillator();
     const gainNode1 = audioCtx.createGain();
@@ -306,12 +317,12 @@ function playInterval(ratio, method) {
     const gainNode2 = audioCtx.createGain();
 
     // Configure Oscillator 1 (Root Note)
-    oscillator1.type = 'sine';
+    oscillator1.type = waveform; // Set waveform type
     oscillator1.frequency.setValueAtTime(baseFrequency, audioCtx.currentTime);
     gainNode1.gain.setValueAtTime(0.1, audioCtx.currentTime);
 
     // Configure Oscillator 2 (Interval Note)
-    oscillator2.type = 'sine';
+    oscillator2.type = waveform; // Set waveform type
     oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
     gainNode2.gain.setValueAtTime(0.1, audioCtx.currentTime);
 
