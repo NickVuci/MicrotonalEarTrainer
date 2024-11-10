@@ -41,7 +41,6 @@ function loadScalaDataFromLocalStorage() {
         if (intervals.length > 0) {
             const adjustedIntervals = rotateIntervalsToTop(intervals);
             updateIntervalsWithScala(adjustedIntervals);
-            alert("Loaded saved Scala scale from local storage.");
         }
     }
 }
