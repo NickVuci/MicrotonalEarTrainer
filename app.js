@@ -8,12 +8,6 @@ let intervals = [];
 let correctInterval = null;
 let showCents = false; // Toggle to switch between n\edo and cents labels
 
-// Function to update intervals with Scala data
-function setIntervalsFromScala(scalaIntervals) {
-    intervals = scalaIntervals;
-    displayIntervals(); // Update the displayed intervals
-}
-
 // Playback Control Variables
 let isPlaying = false; // Flag to track playback state
 let currentOscillators = []; // Array to store current oscillators
@@ -25,7 +19,15 @@ let hasGuessed = false; // Flag to track if the user has made a guess
 // Default base frequency
 let baseFrequency = 440.0; // A4
 
-// Debounce Function to Limit the Rate of Function Calls
+// Variable to track currently playing note from circle click
+let currentPlayingNote = null; // **Added Variable**
+
+/**
+ * Debounce Function to Limit the Rate of Function Calls
+ * @param {Function} func - The function to debounce.
+ * @param {number} delay - The delay in milliseconds.
+ * @returns {Function} - The debounced function.
+ */
 function debounce(func, delay) {
     let debounceTimer;
     return function() {
@@ -407,6 +409,12 @@ document.getElementById('playButton').addEventListener('click', () => {
 
 // Function to play the selected interval based on the chosen method
 function playInterval(ratio, method) {
+    // Stop any current single note before playback
+    if (currentPlayingNote) {
+        currentPlayingNote.stop();
+        currentPlayingNote = null;
+    }
+
     const duration = 1.5;
     const frequency = baseFrequency * ratio;
 
@@ -471,46 +479,82 @@ function playInterval(ratio, method) {
     }, duration * 1000);
 }
 
-// Handle Interval Clicks
+/**
+ * Handle Interval Clicks
+ * @param {Event} event - The click event.
+ */
 function handleIntervalClick(event) {
-    // If the user has already guessed, ignore further clicks
-    if (hasGuessed) {
-        return;
+    // Play the clicked interval's note
+    playSingleNote(parseInt(event.currentTarget.dataset.index));
+
+    // Check if a guess has already been made for the current interval
+    if (!hasGuessed) {
+        hasGuessed = true; // Set the guess flag
+
+        const selectedIndex = parseInt(event.currentTarget.dataset.index);
+        const selectedInterval = intervals[selectedIndex];
+
+        if (correctInterval && selectedInterval.label === correctInterval.label) {
+            event.currentTarget.style.backgroundColor = 'green';
+            document.getElementById('feedback').textContent = '🎉 Correct!';
+            // Display cent value and name of the correct interval
+            document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
+            // Increment correct score
+            if (typeof incrementCorrect === 'function') {
+                incrementCorrect();
+            }
+        } else {
+            event.currentTarget.style.backgroundColor = 'red';
+            document.getElementById('feedback').textContent = '❌ Incorrect.';
+            // Highlight the correct interval
+            const correctIndex = intervals.findIndex(interval => interval.label === correctInterval.label);
+            if (correctIndex !== -1) {
+                const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
+                correctPoint.style.backgroundColor = 'green';
+            }
+            // Display cent value and name of the correct interval
+            document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
+            // Increment incorrect score
+            if (typeof incrementIncorrect === 'function') {
+                incrementIncorrect();
+            }
+        }
+    }
+    // If hasGuessed is true, do not change the score
+}
+
+/**
+ * Function to play a single note when a circle is clicked
+ * Ensures that only one note plays at a time.
+ * @param {number} index - The index of the interval to play.
+ */
+function playSingleNote(index) {
+    // Stop any currently playing note
+    if (currentPlayingNote) {
+        currentPlayingNote.stop();
+        currentPlayingNote = null;
     }
 
-    hasGuessed = true; // Set the guess flag
+    const interval = intervals[index];
+    if (!interval) return;
 
-    const selectedIndex = parseInt(event.currentTarget.dataset.index);
-    const selectedInterval = intervals[selectedIndex];
+    const frequency = baseFrequency * interval.ratio;
+    const waveform = getSelectedWaveform();
 
-    if (correctInterval && selectedInterval.label === correctInterval.label) {
-        event.currentTarget.style.backgroundColor = 'green';
-        document.getElementById('feedback').textContent = '🎉 Correct!';
-        // Display cent value and name of the correct interval
-        document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
-        // Increment correct score
-        if (typeof incrementCorrect === 'function') {
-            incrementCorrect();
-        }
-    } else {
-        event.currentTarget.style.backgroundColor = 'red';
-        document.getElementById('feedback').textContent = '❌ Incorrect.';
-        // Highlight the correct interval
-        const correctIndex = intervals.findIndex(interval => interval.label === correctInterval.label);
-        if (correctIndex !== -1) {
-            const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
-            correctPoint.style.backgroundColor = 'green';
-        }
-        // Display cent value and name of the correct interval
-        document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
-        // Increment incorrect score
-        if (typeof incrementIncorrect === 'function') {
-            incrementIncorrect();
-        }
-    }
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
 
-    // Disable further guesses by disabling all interval points
-    disableIntervalPoints();
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
+
+    currentPlayingNote = oscillator;
 }
 
 // Function to disable interval points (prevent further clicks)
