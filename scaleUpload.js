@@ -46,6 +46,7 @@ function loadScalaDataFromLocalStorage() {
 }
 
 // Parse Scala (.scl) file contents
+// Parse Scala (.scl) file contents
 function parseScalaFile(contents) {
     const lines = contents.split('\n');
     const intervals = [];
@@ -74,12 +75,13 @@ function parseScalaFile(contents) {
                 const numerator = parseFloat(ratioMatch[1]);
                 const denominator = parseFloat(ratioMatch[2]);
                 const ratio = numerator / denominator;
-                intervals.push({ ratio, label: `${numerator}/${denominator}` });
+                const cents = 1200 * Math.log2(ratio);
+                intervals.push({ ratio, label: `${numerator}/${denominator}`, cents });
             } else if (centsMatch) {
                 // Parse cents value
                 const cents = parseFloat(centsMatch[1]);
                 const ratio = Math.pow(2, cents / 1200);
-                intervals.push({ ratio, label: `${cents.toFixed(2)} cents` });
+                intervals.push({ ratio, label: `${cents.toFixed(2)} cents`, cents });
             }
         }
     });
