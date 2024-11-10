@@ -1,0 +1,194 @@
+/* styles.css */
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    margin-top: 20px;
+}
+
+#settings {
+    margin: 20px auto;
+    width: 300px;
+    text-align: left;
+}
+
+#settings label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+#settings input[type="number"], #settings select {
+    width: 100px;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+#playbackOptions label {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 14px;
+}
+
+#waveformSelection {
+    font-size: 16px;
+}
+
+#waveformSelection select {
+    width: 120px;
+    padding: 5px;
+}
+
+#rootFrequency label {
+    font-size: 16px;
+}
+
+#rootFrequency input[type="number"] {
+    width: 80px;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+#generateButton {
+    padding: 8px 16px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#generateButton:hover {
+    background-color: #218838;
+}
+
+/* Reset Score Button Styling */
+#resetScoreButton {
+    padding: 8px 16px;
+    margin-top: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#resetScoreButton:hover {
+    background-color: #c82333;
+}
+
+#container {
+    position: relative;
+    width: 600px;
+    height: 600px;
+    margin: 50px auto 0 auto;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    background-color: #fafafa;
+}
+
+.interval-point {
+    position: absolute;
+    /* The size will be set dynamically via JavaScript */
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    line-height: normal; /* Adjusted for dynamic sizing */
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s, opacity 0.3s;
+    font-size: 14px;
+    /* Center the text vertically */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edo-interval {
+    background-color: #d1ecf1; /* Light blue */
+    border: 2px solid #0c5460; /* Dark blue border */
+}
+
+.ji-interval {
+    background-color: #d4edda; /* Light green */
+    border: 2px solid #155724; /* Dark green border */
+}
+
+#playButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#playButton:hover {
+    background-color: #0056b3;
+}
+
+/* Play Button Disabled State */
+#playButton:disabled {
+    background-color: #6c757d; /* Gray color */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#feedback {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+#correctInterval {
+    position: absolute;
+    top: 35%; /* Adjusted to position beneath feedback */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    color: #555;
+    font-weight: bold;
+}
+
+#scoreBoard {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    font-size: 18px;
+}
+
+#correctScore {
+    color: green;
+}
+
+#incorrectScore {
+    color: red;
+}
+
+/* Hover Effect for Interval Points */
+.interval-point:hover {
+    transform: scale(1.1);
+}

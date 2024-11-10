@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuci's Microtonal Ear Training App</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <h1>Vuci's Microtonal Ear Training App</h1>
+
+    <div id="settings">
+        <label>
+            <input type="radio" name="tuning" value="edo" checked> EDO
+        </label>
+        <label>
+            <input type="radio" name="tuning" value="ji"> JI
+        </label>
+        <div id="edoSettings">
+            <label>EDO Value:
+                <input type="number" id="edoValue" value="12" min="1">
+            </label>
+        </div>
+        <div id="jiSettings" style="display:none;">
+            <label>Prime Limit:
+                <input type="number" id="primeLimit" value="5" min="2">
+            </label>
+            <label>Odd Limit:
+                <input type="number" id="oddLimit" value="5" min="3">
+            </label>
+        </div>
+        <div>
+            <label for="labelToggle">Show Cent Values:</label>
+            <input type="checkbox" id="labelToggle">
+        </div> 
+        <br>
+        <!-- Playback Options -->
+        <div id="playbackOptions">
+            <label><input type="checkbox" id="playTogether" checked> Play Together</label>
+            <label><input type="checkbox" id="playAscending" checked> Play Ascending</label>
+            <label><input type="checkbox" id="playDescending" checked> Play Descending</label>
+        </div>
+        <br>
+        <!-- Waveform Selection -->
+        <div id="waveformSelection">
+            <label for="waveformSelect">Select Waveform:</label>
+            <select id="waveformSelect">
+                <option value="sine" selected>Sine</option>
+                <option value="square">Square</option>
+                <option value="sawtooth">Sawtooth</option>
+                <option value="triangle">Triangle</option>
+            </select>
+        </div>       
+        <br>
+        <!-- Root Frequency Input -->
+        <div id="rootFrequency">
+            <label>Root Frequency (Hz):
+                <input type="number" id="baseFrequencyInput" value="440.0" min="20" max="20000" step="0.1" maxlength="6">
+            </label>
+        </div>
+        <!-- Scala File Upload -->
+        <div class="horizontal-group">
+            <label for="scalaFile">Upload Scala File:</label>
+            <input type="file" id="scalaFile" accept=".scl">
+        </div>
+        <br>
+        <!-- Reset Score Button -->
+        <button id="resetScoreButton">Reset Scores</button>
+    </div>
+
+    <div id="container">
+        <!-- Feedback Messages -->
+        <div id="feedback"></div>
+        <div id="correctInterval"></div>
+        <!-- Play Button -->
+        <button id="playButton">Play</button>
+        <!-- Score Display -->
+        <div id="scoreBoard">
+            <span id="correctScore">Correct: 0</span>
+            <span id="incorrectScore">Incorrect: 0</span>
+        </div>
+    </div>
+
+    <!-- Include JavaScript Files -->
+    <script src="score.js"></script>
+    <script src="waveform.js"></script> <!-- Script for Waveform Selection -->
+    <script src="app.js"></script>
+    <script src="scaleUpload.js"></script> <!-- Scala File Upload Script -->
+
+    <!-- Inline Script to Automatically Generate 12-EDO Intervals on Page Load -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Directly call generateIntervals and displayIntervals
+            if (typeof generateIntervals === 'function' && typeof displayIntervals === 'function') {
+                generateIntervals();
+                displayIntervals();
+            }
+        });
+    </script>
+</body>
+</html>
