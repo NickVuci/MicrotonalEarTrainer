@@ -8,6 +8,13 @@ let intervals = [];
 let correctInterval = null;
 let showCents = false; // Toggle to switch between n\edo and cents labels
 
+
+// Function to update intervals with Scala data
+function setIntervalsFromScala(scalaIntervals) {
+    intervals = scalaIntervals;
+    displayIntervals(); // Update the displayed intervals
+}
+
 // Playback Control Variables
 let isPlaying = false; // Flag to track playback state
 let currentOscillators = []; // Array to store current oscillators
