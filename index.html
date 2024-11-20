@@ -9,7 +9,14 @@
 
     <h1>Vuci's Microtonal Ear Training App</h1>
 
-    <div id="settings">
+    <!-- Settings Button -->
+    <button id="openSettingsButton">Settings</button>
+
+    <!-- The Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Settings</h2>
         <label>
             <input type="radio" name="tuning" value="edo" checked> EDO
         </label>
@@ -64,8 +71,10 @@
             <input type="file" id="scalaFile" accept=".scl">
         </div>
         <br>
+        <div></div>
         <!-- Reset Score Button -->
         <button id="resetScoreButton">Reset Scores</button>
+        </div>
     </div>
 
     <div id="container">
@@ -82,6 +91,7 @@
     </div>
 
     <!-- Include JavaScript Files -->
+    <script src="modal.js"></script>
     <script src="score.js"></script>
     <script src="waveform.js"></script> <!-- Script for Waveform Selection -->
     <script src="app.js"></script>
