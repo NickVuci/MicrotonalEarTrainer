@@ -32,6 +32,11 @@ let currentPlayingNote = null; // **Added Variable**
 // Add lastInterval to store the last played interval
 let lastInterval = null;
 
+// Last valid values for input fields
+let lastEdoValue = parseInt(document.getElementById('edoValue').value) || 12;
+let lastPrimeLimit = parseInt(document.getElementById('primeLimit').value) || 5;
+let lastOddLimit = parseInt(document.getElementById('oddLimit').value) || 5;
+
 /**
  * Debounce Function to Limit the Rate of Function Calls
  * @param {Function} func - The function to debounce.
@@ -67,50 +72,91 @@ document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
 document.getElementById('edoValue').addEventListener('input', debounce(() => {
     const edoValueInput = document.getElementById('edoValue').value;
 
-    // Allow empty input without an error
+    // Allow empty input without an error (handled on blur)
     if (edoValueInput === '') {
-        // Do nothing to allow user to delete all numbers
         return;
     }
 
     const edoValue = parseInt(edoValueInput);
     if (edoValue < 1 || isNaN(edoValue)) {
         alert('Please enter a valid EDO value (minimum 1).');
-        // Reset to default if invalid
-        document.getElementById('edoValue').value = '12';
-        baseFrequency = 440.0;
+        // Reset to last valid or default if invalid
+        document.getElementById('edoValue').value = lastEdoValue;
     } else {
-        // Update baseFrequency is already handled via existing event listener
+        lastEdoValue = edoValue; // Update last valid value
         generateIntervals();
         displayIntervals();
     }
 }, 300));
+
+// Event listener for EDO Value Blur
+document.getElementById('edoValue').addEventListener('blur', () => {
+    const edoValueInput = document.getElementById('edoValue').value;
+    if (edoValueInput === '') {
+        // Reset to last valid or default value
+        document.getElementById('edoValue').value = lastEdoValue;
+    }
+});
 
 // Event listener for JI Prime Limit Change
 document.getElementById('primeLimit').addEventListener('input', debounce(() => {
-    const primeLimit = parseInt(document.getElementById('primeLimit').value);
+    const primeLimitInput = document.getElementById('primeLimit').value;
+
+    // Allow empty input without an error (handled on blur)
+    if (primeLimitInput === '') {
+        return;
+    }
+
+    const primeLimit = parseInt(primeLimitInput);
     if (primeLimit < 2 || isNaN(primeLimit)) {
         alert('Please enter a valid Prime Limit (minimum 2).');
-        // Reset to default if invalid
-        document.getElementById('primeLimit').value = '5';
+        // Reset to last valid or default if invalid
+        document.getElementById('primeLimit').value = lastPrimeLimit;
     } else {
+        lastPrimeLimit = primeLimit; // Update last valid value
         generateIntervals();
         displayIntervals();
     }
 }, 300));
 
+// Event listener for JI Prime Limit Blur
+document.getElementById('primeLimit').addEventListener('blur', () => {
+    const primeLimitInput = document.getElementById('primeLimit').value;
+    if (primeLimitInput === '') {
+        // Reset to last valid or default value
+        document.getElementById('primeLimit').value = lastPrimeLimit;
+    }
+});
+
 // Event listener for JI Odd Limit Change
 document.getElementById('oddLimit').addEventListener('input', debounce(() => {
-    const oddLimit = parseInt(document.getElementById('oddLimit').value);
+    const oddLimitInput = document.getElementById('oddLimit').value;
+
+    // Allow empty input without an error (handled on blur)
+    if (oddLimitInput === '') {
+        return;
+    }
+
+    const oddLimit = parseInt(oddLimitInput);
     if (oddLimit < 3 || isNaN(oddLimit)) {
         alert('Please enter a valid Odd Limit (minimum 3).');
-        // Reset to default if invalid
-        document.getElementById('oddLimit').value = '15';
+        // Reset to last valid or default if invalid
+        document.getElementById('oddLimit').value = lastOddLimit;
     } else {
+        lastOddLimit = oddLimit; // Update last valid value
         generateIntervals();
         displayIntervals();
     }
 }, 300));
+
+// Event listener for JI Odd Limit Blur
+document.getElementById('oddLimit').addEventListener('blur', () => {
+    const oddLimitInput = document.getElementById('oddLimit').value;
+    if (oddLimitInput === '') {
+        // Reset to last valid or default value
+        document.getElementById('oddLimit').value = lastOddLimit;
+    }
+});
 
 // Event listener for waveform selection change
 document.getElementById('waveformSelect').addEventListener('change', () => {
