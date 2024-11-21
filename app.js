@@ -6,36 +6,38 @@ const audioCtx = new AudioContext();
 
 let intervals = [];
 let correctInterval = null;
-let showCents = false; // Toggle to switch between n\edo and cents labels
-
-
-// Function to update intervals with Scala data
-function setIntervalsFromScala(scalaIntervals) {
-    intervals = scalaIntervals;
-    displayIntervals(); // Update the displayed intervals
-}
+let showCents = false; // Toggle to switch between nedo and cents labels
 
 // Playback Control Variables
 let isPlaying = false; // Flag to track playback state
 let currentOscillators = []; // Array to store current oscillators
 let playbackTimeout = null; // Reference to the playback timeout
 
-// Guess Control Variable
+// Guess Control Variables
 let hasGuessed = false; // Flag to track if the user has made a guess
+let testActive = false; // Flag to track if a test is active
 
 // Default base frequency
 let baseFrequency = 440.0; // A4
 
-// Variable to track currently playing note from circle click
-let currentPlayingNote = null; // **Added Variable**
+// Waveform type
+let waveform = 'sine'; // Default waveform
 
-// Add lastInterval to store the last played interval
-let lastInterval = null;
+// Variable to track currently playing note from circle click
+let currentPlayingNote = null;
 
 // Last valid values for input fields
 let lastEdoValue = parseInt(document.getElementById('edoValue').value) || 12;
 let lastPrimeLimit = parseInt(document.getElementById('primeLimit').value) || 5;
 let lastOddLimit = parseInt(document.getElementById('oddLimit').value) || 5;
+
+// User Scores
+let correctScore = parseInt(localStorage.getItem('correctScore')) || 0;
+let incorrectScore = parseInt(localStorage.getItem('incorrectScore')) || 0;
+
+// Update score display on load
+document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
+document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
 
 /**
  * Debounce Function to Limit the Rate of Function Calls
@@ -50,8 +52,213 @@ function debounce(func, delay) {
         const args = arguments;
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => func.apply(context, args), delay);
+    };
+}
+
+// Initialize Settings from localStorage
+function loadSettings() {
+    const savedRootNote = localStorage.getItem('rootNote');
+    if (savedRootNote) {
+        baseFrequency = parseFloat(savedRootNote);
+        document.getElementById('baseFrequencyInput').value = baseFrequency;
+    }
+
+    const savedWaveform = localStorage.getItem('waveform');
+    if (savedWaveform) {
+        waveform = savedWaveform;
+        document.getElementById('waveformSelect').value = waveform;
     }
 }
+
+// Save Settings to localStorage
+function saveSettings() {
+    localStorage.setItem('rootNote', baseFrequency.toString());
+    localStorage.setItem('waveform', waveform);
+}
+
+// Load settings on DOM content loaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+});
+
+// Event listener for EDO Value Change with Inline Error Messages
+document.getElementById('edoValue').addEventListener('input', debounce(() => {
+    const edoValueInput = document.getElementById('edoValue').value;
+    const edoValueError = document.getElementById('edoValueError');
+
+    // Allow empty input without an error (handled on blur)
+    if (edoValueInput === '') {
+        edoValueError.textContent = '';
+        return;
+    }
+
+    const edoValue = parseInt(edoValueInput);
+    if (edoValue < 1 || isNaN(edoValue)) {
+        edoValueError.textContent = 'Minimum value is 1.';
+        // Reset to last valid or default if invalid
+        document.getElementById('edoValue').value = lastEdoValue;
+    } else {
+        edoValueError.textContent = '';
+        lastEdoValue = edoValue; // Update last valid value
+        generateIntervals();
+        displayIntervals();
+        // Save to localStorage if needed
+    }
+}, 300));
+
+// Event listener for EDO Value Blur
+document.getElementById('edoValue').addEventListener('blur', () => {
+    const edoValueInput = document.getElementById('edoValue').value;
+    const edoValueError = document.getElementById('edoValueError');
+    if (edoValueInput === '') {
+        document.getElementById('edoValue').value = lastEdoValue;
+        edoValueError.textContent = '';
+    }
+});
+
+// Event listener for JI Prime Limit Change with Inline Error Messages
+document.getElementById('primeLimit').addEventListener('input', debounce(() => {
+    const primeLimitInput = document.getElementById('primeLimit').value;
+    const primeLimitError = document.getElementById('primeLimitError');
+
+    // Allow empty input without an error (handled on blur)
+    if (primeLimitInput === '') {
+        primeLimitError.textContent = '';
+        return;
+    }
+
+    const primeLimit = parseInt(primeLimitInput);
+    if (primeLimit < 2 || isNaN(primeLimit)) {
+        primeLimitError.textContent = 'Minimum value is 2.';
+        // Reset to last valid or default if invalid
+        document.getElementById('primeLimit').value = lastPrimeLimit;
+    } else {
+        primeLimitError.textContent = '';
+        lastPrimeLimit = primeLimit; // Update last valid value
+        generateIntervals();
+        displayIntervals();
+        // Save to localStorage if needed
+    }
+}, 300));
+
+// Event listener for JI Prime Limit Blur
+document.getElementById('primeLimit').addEventListener('blur', () => {
+    const primeLimitInput = document.getElementById('primeLimit').value;
+    const primeLimitError = document.getElementById('primeLimitError');
+    if (primeLimitInput === '') {
+        document.getElementById('primeLimit').value = lastPrimeLimit;
+        primeLimitError.textContent = '';
+    }
+});
+
+// Event listener for JI Odd Limit Change with Inline Error Messages
+document.getElementById('oddLimit').addEventListener('input', debounce(() => {
+    const oddLimitInput = document.getElementById('oddLimit').value;
+    const oddLimitError = document.getElementById('oddLimitError');
+
+    // Allow empty input without an error (handled on blur)
+    if (oddLimitInput === '') {
+        oddLimitError.textContent = '';
+        return;
+    }
+
+    const oddLimit = parseInt(oddLimitInput);
+    if (oddLimit < 3 || isNaN(oddLimit)) {
+        oddLimitError.textContent = 'Minimum value is 3.';
+        // Reset to last valid or default if invalid
+        document.getElementById('oddLimit').value = lastOddLimit;
+    } else {
+        oddLimitError.textContent = '';
+        lastOddLimit = oddLimit; // Update last valid value
+        generateIntervals();
+        displayIntervals();
+        // Save to localStorage if needed
+    }
+}, 300));
+
+// Event listener for JI Odd Limit Blur
+document.getElementById('oddLimit').addEventListener('blur', () => {
+    const oddLimitInput = document.getElementById('oddLimit').value;
+    const oddLimitError = document.getElementById('oddLimitError');
+    if (oddLimitInput === '') {
+        document.getElementById('oddLimit').value = lastOddLimit;
+        oddLimitError.textContent = '';
+    }
+});
+
+// Event listener for Waveform Selection Change
+document.getElementById('waveformSelect').addEventListener('change', () => {
+    waveform = document.getElementById('waveformSelect').value;
+    saveSettings();
+});
+
+// Event listener for Root Frequency Input Change
+document.getElementById('baseFrequencyInput').addEventListener('change', () => {
+    const freq = parseFloat(document.getElementById('baseFrequencyInput').value);
+    if (!isNaN(freq) && freq >= 20 && freq <= 20000) {
+        baseFrequency = freq;
+        saveSettings();
+        generateIntervals();
+        displayIntervals();
+    }
+});
+
+// Event listener for Reset Score Button
+document.getElementById('resetScoreButton').addEventListener('click', () => {
+    correctScore = 0;
+    incorrectScore = 0;
+    document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
+    document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
+    localStorage.setItem('correctScore', correctScore.toString());
+    localStorage.setItem('incorrectScore', incorrectScore.toString());
+});
+
+// Function to update scores and save to localStorage
+function updateScore(isCorrect) {
+    if (isCorrect) {
+        correctScore++;
+        document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
+        localStorage.setItem('correctScore', correctScore.toString());
+    } else {
+        incorrectScore++;
+        document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
+        localStorage.setItem('incorrectScore', incorrectScore.toString());
+    }
+}
+
+// Example usage in handleIntervalClick
+function handleIntervalClick(event) {
+    // Play the clicked interval's note
+    playSingleNote(parseInt(event.currentTarget.dataset.index));
+
+    // Only evaluate the guess if a test is active
+    if (testActive && !hasGuessed) {
+        const clickedIndex = parseInt(event.currentTarget.dataset.index);
+        const clickedInterval = intervals[clickedIndex];
+
+        // Check if the clicked interval is correct
+        if (clickedInterval === correctInterval) {
+            document.getElementById('feedback').textContent = 'Correct!';
+            document.getElementById('feedback').style.color = 'green';
+            updateScore(true);
+        } else {
+            document.getElementById('feedback').textContent = 'Incorrect!';
+            document.getElementById('feedback').style.color = 'red';
+            event.currentTarget.style.backgroundColor = 'red'; // Turn the circle red
+            updateScore(false);
+        }
+
+        hasGuessed = true;
+        testActive = false; // Reset testActive after a guess
+        document.getElementById('playButton').disabled = false; // Re-enable Play button
+    }
+}
+
+// Initial load of settings and scores
+loadSettings();
+
+// Add lastInterval to store the last played interval
+let lastInterval = null;
 
 // Event listeners for tuning selection
 document.querySelectorAll('input[name="tuning"]').forEach((elem) => {

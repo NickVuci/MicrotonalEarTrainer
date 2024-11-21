@@ -33,35 +33,60 @@ function updateScoreDisplay() {
     correctScoreElem.classList.add('updated');
     incorrectScoreElem.classList.add('updated');
 
-    // Remove 'updated' class after animation completes
+    // Remove 'updated' class after animation completes (assuming 500ms)
     setTimeout(() => {
         correctScoreElem.classList.remove('updated');
         incorrectScoreElem.classList.remove('updated');
-    }, 300); // Duration matches the CSS animation duration
+    }, 500);
 }
 
-// Function to increment correct score
+// Function to increment correct count
 function incrementCorrect() {
-    correctCount += 1;
-    updateScoreDisplay();
+    correctCount++;
     saveScores();
+    updateScoreDisplay();
 }
 
-// Function to increment incorrect score
+// Function to increment incorrect count
 function incrementIncorrect() {
-    incorrectCount += 1;
-    updateScoreDisplay();
+    incorrectCount++;
     saveScores();
+    updateScoreDisplay();
 }
 
 // Function to reset scores
 function resetScores() {
     correctCount = 0;
     incorrectCount = 0;
+    saveScores();
     updateScoreDisplay();
-    localStorage.removeItem('correctCount');
-    localStorage.removeItem('incorrectCount');
 }
 
-// Load scores when the script is loaded
-loadScores();
+// Attach event listeners to handle score updates
+function attachScoreListeners() {
+    // Example: Assuming you have functions to call when user gets correct or incorrect
+    // These should be called from your main app logic (e.g., app.js) when appropriate
+    // For demonstration, let's assume buttons trigger score increments
+
+    const incrementCorrectBtn = document.getElementById('incrementCorrect');
+    const incrementIncorrectBtn = document.getElementById('incrementIncorrect');
+    const resetScoreButton = document.getElementById('resetScoreButton');
+
+    if (incrementCorrectBtn) {
+        incrementCorrectBtn.addEventListener('click', incrementCorrect);
+    }
+
+    if (incrementIncorrectBtn) {
+        incrementIncorrectBtn.addEventListener('click', incrementIncorrect);
+    }
+
+    if (resetScoreButton) {
+        resetScoreButton.addEventListener('click', resetScores);
+    }
+}
+
+// Initialize scores and attach listeners on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    loadScores();
+    attachScoreListeners();
+});
