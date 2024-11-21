@@ -29,6 +29,9 @@ let baseFrequency = 440.0; // A4
 // Variable to track currently playing note from circle click
 let currentPlayingNote = null; // **Added Variable**
 
+// Add lastInterval to store the last played interval
+let lastInterval = null;
+
 /**
  * Debounce Function to Limit the Rate of Function Calls
  * @param {Function} func - The function to debounce.
@@ -367,13 +370,13 @@ function displayIntervals() {
 // Play Button Event
 document.getElementById('playButton').addEventListener('click', () => {
     if (intervals.length === 0) {
-        alert('Please generate intervals first.');
+        console.warn('No intervals available to play.');
         return;
     }
 
     // Prevent initiating a new playback if one is already in progress
     if (isPlaying) {
-        alert('Playback is already in progress. Please wait until it finishes.');
+        console.warn('Playback already in progress.');
         return;
     }
 
@@ -393,7 +396,9 @@ document.getElementById('playButton').addEventListener('click', () => {
     if (playDescending) playbackMethods.push('descending');
 
     // If no options are selected, default to 'together'
-    if (playbackMethods.length === 0) playbackMethods.push('together');
+    if (playbackMethods.length === 0) {
+        playbackMethods.push('together');
+    }
 
     // Select a random playback method from the selected options
     const selectedMethod = playbackMethods[Math.floor(Math.random() * playbackMethods.length)];
@@ -401,6 +406,12 @@ document.getElementById('playButton').addEventListener('click', () => {
     // Select a random interval (including the octave)
     const randomIndex = Math.floor(Math.random() * intervals.length);
     correctInterval = intervals[randomIndex];
+
+    // Store the last interval with its method
+    lastInterval = {
+        ratio: correctInterval.ratio,
+        method: selectedMethod
+    };
 
     // Reset guess state
     hasGuessed = false;
@@ -412,6 +423,15 @@ document.getElementById('playButton').addEventListener('click', () => {
     document.getElementById('feedback').textContent = '';
     document.getElementById('correctInterval').textContent = '';
     resetIntervalPoints();
+});
+
+// Add event listener to the repeat button
+document.getElementById('repeatButton').addEventListener('click', () => {
+    if (lastInterval) {
+        playInterval(lastInterval.ratio, lastInterval.method);
+    } else {
+        console.warn('No interval to repeat.');
+    }
 });
 
 // Function to play the selected interval based on the chosen method
