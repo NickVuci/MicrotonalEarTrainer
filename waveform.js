@@ -7,6 +7,8 @@ let selectedWaveform = 'sine';
 function handleWaveformChange(event) {
     selectedWaveform = event.target.value;
     console.log(`Selected Waveform: ${selectedWaveform}`);
+    // Update the waveform in app.js
+    waveform = selectedWaveform;
 }
 
 // Add event listener to the waveform selection dropdown

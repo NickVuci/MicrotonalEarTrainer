@@ -29,12 +29,13 @@
             <label>Prime Limit:
                 <input type="number" id="primeLimit" value="5" min="2">
             </label>
+            <br>
             <label>Odd Limit:
                 <input type="number" id="oddLimit" value="5" min="3">
             </label>
         </div>
         <div>
-            <label for="labelToggle">Show Cent Values:</label>
+            <label for="labelToggle">Show Only Cent Values:</label>
             <input type="checkbox" id="labelToggle">
         </div> 
         <br>
@@ -61,7 +62,13 @@
             <label>Root Frequency (Hz):
                 <input type="number" id="baseFrequencyInput" value="440.0" min="20" max="20000" step="0.1" maxlength="6">
             </label>
+            <!-- Root Note Randomization -->
+            <label>
+                <input type="checkbox" id="randomizeRootNote">
+                Randomize Root Note
+            </label>
         </div>
+        <br>
         <!-- Scala File Upload -->
         <div class="horizontal-group">
             <label for="scalaFile">Upload Scala File:</label>

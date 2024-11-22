@@ -66,7 +66,10 @@ function loadSettings() {
     const savedWaveform = localStorage.getItem('waveform');
     if (savedWaveform) {
         waveform = savedWaveform;
-        document.getElementById('waveformSelect').value = waveform;
+        const waveformSelect = document.getElementById('waveformSelect');
+        waveformSelect.value = waveform;
+        // Trigger the change event to update the waveform
+        handleWaveformChange({ target: waveformSelect });
     }
 }
 
@@ -787,8 +790,7 @@ function handleIntervalClick(event) {
             event.currentTarget.style.backgroundColor = 'red';
             document.getElementById('feedback').textContent = '❌ Incorrect.';
             // Highlight the correct interval
-            const correctIndex = intervals.findIndex(interval => interval.label === correctInterval.label);
-            if (correctIndex !== -1) {
+            const correctIndex = intervals.findIndex(interval => interval && interval.label === correctInterval.label);
                 const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
                 correctPoint.style.backgroundColor = 'green';
             }
@@ -800,8 +802,7 @@ function handleIntervalClick(event) {
             }
         }
     }
-    // If hasGuessed is true, do not change the score
-}
+
 
 /**
  * Function to play a single note when a circle is clicked
@@ -835,6 +836,12 @@ function playSingleNote(index) {
     oscillator.stop(audioCtx.currentTime + 1); // Play for 1 second
 
     currentPlayingNote = oscillator;
+}
+
+// Add the setIntervalsFromScala function here
+function setIntervalsFromScala(scalaIntervals) {
+    intervals = scalaIntervals;
+    displayIntervals(); // Update the display with new intervals
 }
 
 // Function to disable interval points (prevent further clicks)
