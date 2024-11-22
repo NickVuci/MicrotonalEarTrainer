@@ -216,44 +216,31 @@ document.getElementById('resetScoreButton').addEventListener('click', () => {
     localStorage.setItem('incorrectScore', incorrectScore.toString());
 });
 
-// Function to update scores and save to localStorage
-function updateScore(isCorrect) {
-    if (isCorrect) {
-        correctScore++;
-        document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
-        localStorage.setItem('correctScore', correctScore.toString());
-    } else {
-        incorrectScore++;
-        document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
-        localStorage.setItem('incorrectScore', incorrectScore.toString());
-    }
-}
-
-// Example usage in handleIntervalClick
 function handleIntervalClick(event) {
     // Play the clicked interval's note
     playSingleNote(parseInt(event.currentTarget.dataset.index));
 
-    // Only evaluate the guess if a test is active
+    // Only evaluate the guess if a test is active and the user hasn't guessed yet
     if (testActive && !hasGuessed) {
-        const clickedIndex = parseInt(event.currentTarget.dataset.index);
-        const clickedInterval = intervals[clickedIndex];
+        hasGuessed = true;
+        const guessedIndex = parseInt(event.currentTarget.dataset.index);
 
-        // Check if the clicked interval is correct
-        if (clickedInterval === correctInterval) {
-            document.getElementById('feedback').textContent = 'Correct!';
-            document.getElementById('feedback').style.color = 'green';
-            updateScore(true);
+        if (guessedIndex === correctInterval.index) {
+            // Correct guess
+            correctScore++;
+            document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
+            localStorage.setItem('correctScore', correctScore.toString());
+            // Provide feedback for correct guess
         } else {
-            document.getElementById('feedback').textContent = 'Incorrect!';
-            document.getElementById('feedback').style.color = 'red';
-            event.currentTarget.style.backgroundColor = 'red'; // Turn the circle red
-            updateScore(false);
+            // Incorrect guess
+            incorrectScore++;
+            document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
+            localStorage.setItem('incorrectScore', incorrectScore.toString());
+            // Provide feedback for incorrect guess
         }
 
-        hasGuessed = true;
-        testActive = false; // Reset testActive after a guess
-        document.getElementById('playButton').disabled = false; // Re-enable Play button
+        // Optionally update the score display with animation
+        updateScoreDisplay();
     }
 }
 
@@ -784,9 +771,8 @@ function handleIntervalClick(event) {
             document.getElementById('feedback').textContent = '❌ Incorrect.';
             // Highlight the correct interval
             const correctIndex = intervals.findIndex(interval => interval && interval.label === correctInterval.label);
-                const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
-                correctPoint.style.backgroundColor = 'green';
-            }
+            const correctPoint = document.querySelector(`.interval-point[data-index='${correctIndex}']`);
+            correctPoint.style.backgroundColor = 'green';
             // Display cent value and name of the correct interval
             document.getElementById('correctInterval').textContent = `${correctInterval.label} (${correctInterval.cents.toFixed(2)} cents)`;
             // Increment incorrect score
@@ -795,6 +781,7 @@ function handleIntervalClick(event) {
             }
         }
     }
+}
 
 
 /**
