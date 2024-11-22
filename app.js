@@ -438,14 +438,7 @@ function generateEDOIntervals(edo) {
     }
 }
 
-// Function to calculate the odd limit of a number
-function getOddLimit(number) {
-    while (number % 2 === 0) {
-        number /= 2;
-    }
-    return number;
-}
-
+// Function to generate JI intervals
 function generateJIIntervals(primeLimit, oddLimit) {
     // Add the octave interval
     intervals.push({

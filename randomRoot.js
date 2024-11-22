@@ -16,5 +16,7 @@ document.getElementById('playButton').addEventListener('click', () => {
         const newRootNote = randomizeRootNote();
         console.log(`New randomized root note: ${newRootNote} Hz`);
         baseFrequency = newRootNote; // Update the base frequency
+        generateIntervals(); // Regenerate intervals with the new root note
+        displayIntervals(); // Update the display with new intervals
     }
 });
