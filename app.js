@@ -734,26 +734,26 @@ function playInterval(ratio, method) {
         gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
         gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
         gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator1.stop(audioCtx.currentTime + duration / 2);
+        oscillator1.stop(audioCtx.currentTime + duration / 2 + 0.02); // Add short fade-out period
         
         oscillator2.start(audioCtx.currentTime + duration / 2);
         gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
         gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
         gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator2.stop(audioCtx.currentTime + duration);
+        oscillator2.stop(audioCtx.currentTime + duration + 0.02); // Add short fade-out period
     } else if (method === 'descending') {
         // Play interval first, then root
         oscillator2.start();
         gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
         gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
         gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator2.stop(audioCtx.currentTime + duration / 2);
+        oscillator2.stop(audioCtx.currentTime + duration / 2 + 0.02); // Add short fade-out period
         
         oscillator1.start(audioCtx.currentTime + duration / 2);
         gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
         gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
         gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator1.stop(audioCtx.currentTime + duration);
+        oscillator1.stop(audioCtx.currentTime + duration + 0.02); // Add short fade-out period
     }
 
     // Store oscillators for potential future control
