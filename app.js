@@ -4,6 +4,10 @@
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
+// Define attack and decay times
+const attackTime = 0.15; // 100ms attack
+const decayTime = 0.13; // 500ms decay
+
 let intervals = [];
 let correctInterval = null;
 let showCents = false; // Toggle to switch between nedo and cents labels
@@ -703,12 +707,16 @@ function playInterval(ratio, method) {
     // Configure Oscillator 1 (Root Note)
     oscillator1.type = waveform; // Set waveform type
     oscillator1.frequency.setValueAtTime(baseFrequency, audioCtx.currentTime);
-    gainNode1.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode1.gain.setValueAtTime(0, audioCtx.currentTime); // Start at 0 gain
+    gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + attackTime); // Ramp up to 0.1 gain
+    gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down to 0 gain
 
     // Configure Oscillator 2 (Interval Note)
     oscillator2.type = waveform; // Set waveform type
     oscillator2.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gainNode2.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode2.gain.setValueAtTime(0, audioCtx.currentTime); // Start at 0 gain
+    gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + attackTime); // Ramp up to 0.1 gain
+    gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down to 0 gain
 
     // Connect Oscillators to Gain Nodes and then to Destination
     oscillator1.connect(gainNode1);
@@ -723,14 +731,28 @@ function playInterval(ratio, method) {
     } else if (method === 'ascending') {
         // Play root first, then interval
         oscillator1.start();
+        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
+        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
         oscillator1.stop(audioCtx.currentTime + duration / 2);
+        
         oscillator2.start(audioCtx.currentTime + duration / 2);
+        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
+        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
         oscillator2.stop(audioCtx.currentTime + duration);
     } else if (method === 'descending') {
         // Play interval first, then root
         oscillator2.start();
+        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
+        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
         oscillator2.stop(audioCtx.currentTime + duration / 2);
+        
         oscillator1.start(audioCtx.currentTime + duration / 2);
+        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
+        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
         oscillator1.stop(audioCtx.currentTime + duration);
     }
 
@@ -817,7 +839,9 @@ function playSingleNote(index) {
 
     oscillator.type = waveform;
     oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // Start at 0 gain
+    gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + attackTime); // Ramp up to 0.1 gain
+    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1 - decayTime); // Ramp down to 0 gain
 
     oscillator.connect(gainNode);
     gainNode.connect(audioCtx.destination);
