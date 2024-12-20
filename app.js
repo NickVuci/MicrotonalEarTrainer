@@ -59,30 +59,6 @@ function debounce(func, delay) {
     };
 }
 
-// Initialize Settings from localStorage
-function loadSettings() {
-    const savedRootNote = localStorage.getItem('rootNote');
-    if (savedRootNote) {
-        baseFrequency = parseFloat(savedRootNote);
-        document.getElementById('baseFrequencyInput').value = baseFrequency;
-    }
-
-    const savedWaveform = localStorage.getItem('waveform');
-    if (savedWaveform) {
-        waveform = savedWaveform;
-        const waveformSelect = document.getElementById('waveformSelect');
-        waveformSelect.value = waveform;
-        // Trigger the change event to update the waveform
-        handleWaveformChange({ target: waveformSelect });
-    }
-}
-
-// Save Settings to localStorage
-function saveSettings() {
-    localStorage.setItem('rootNote', baseFrequency.toString());
-    localStorage.setItem('waveform', waveform);
-}
-
 // Event listener for EDO Value Change with Inline Error Messages
 document.getElementById('edoValue').addEventListener('input', debounce(() => {
     const edoValueInput = document.getElementById('edoValue').value;
@@ -187,54 +163,6 @@ document.getElementById('oddLimit').addEventListener('blur', () => {
         oddLimitError.textContent = '';
     }
 });
-
-// Event listener for Waveform Selection Change
-document.getElementById('waveformSelect').addEventListener('change', () => {
-    waveform = document.getElementById('waveformSelect').value;
-    saveSettings();
-});
-
-// Event listener for Root Frequency Input Change
-document.getElementById('baseFrequencyInput').addEventListener('change', () => {
-    const freq = parseFloat(document.getElementById('baseFrequencyInput').value);
-    if (!isNaN(freq) && freq >= 20 && freq <= 20000) {
-        baseFrequency = freq;
-        saveSettings();
-        generateIntervals();
-        displayIntervals();
-    }
-});
-
-function handleIntervalClick(event) {
-    // Play the clicked interval's note
-    playSingleNote(parseInt(event.currentTarget.dataset.index));
-
-    // Only evaluate the guess if a test is active and the user hasn't guessed yet
-    if (testActive && !hasGuessed) {
-        hasGuessed = true;
-        const guessedIndex = parseInt(event.currentTarget.dataset.index);
-
-        if (guessedIndex === correctInterval.index) {
-            // Correct guess
-            correctScore++;
-            document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
-            localStorage.setItem('correctScore', correctScore.toString());
-            // Provide feedback for correct guess
-        } else {
-            // Incorrect guess
-            incorrectScore++;
-            document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
-            localStorage.setItem('incorrectScore', incorrectScore.toString());
-            // Provide feedback for incorrect guess
-        }
-
-        // Optionally update the score display with animation
-        updateScoreDisplay();
-    }
-}
-
-// Initial load of settings and scores
-loadSettings();
 
 // Add lastInterval to store the last played interval
 let lastInterval = null;
@@ -342,12 +270,6 @@ document.getElementById('oddLimit').addEventListener('blur', () => {
         // Reset to last valid or default value
         document.getElementById('oddLimit').value = lastOddLimit;
     }
-});
-
-// Event listener for waveform selection change
-document.getElementById('waveformSelect').addEventListener('change', () => {
-    // No need to regenerate intervals, playback will use the new waveform
-    // Optional: Provide visual feedback if necessary
 });
 
 // Event listener for root frequency input
@@ -793,7 +715,6 @@ function handleIntervalClick(event) {
     }
 }
 
-
 /**
  * Function to play a single note when a circle is clicked
  * Ensures that only one note plays at a time.
@@ -862,11 +783,6 @@ function resetIntervalPoints() {
     });
 }
 
-// Load settings on DOM content loaded
-document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
-});
-
 // Event listener for Reset Score button
 document.getElementById('resetScoreButton').addEventListener('click', () => {
     if (typeof resetScores === 'function') {
@@ -881,4 +797,52 @@ document.getElementById('repeatButton').addEventListener('click', () => {
     } else {
         console.warn('No interval to repeat.');
     }
+});
+
+// Settings 
+
+// Event listener for Waveform Selection Change
+document.getElementById('waveformSelect').addEventListener('change', () => {
+    waveform = document.getElementById('waveformSelect').value;
+    saveSettings();
+});
+
+// Event listener for Root Frequency Input Change
+document.getElementById('baseFrequencyInput').addEventListener('change', () => {
+    const freq = parseFloat(document.getElementById('baseFrequencyInput').value);
+    if (!isNaN(freq) && freq >= 20 && freq <= 20000) {
+        baseFrequency = freq;
+        saveSettings();
+        generateIntervals();
+        displayIntervals();
+    }
+});
+
+// Save Settings to localStorage
+function saveSettings() {
+    localStorage.setItem('rootNote', baseFrequency.toString());
+    localStorage.setItem('waveform', waveform);
+}
+
+// Initialize Settings from localStorage
+function loadSettings() {
+    const savedRootNote = localStorage.getItem('rootNote');
+    if (savedRootNote) {
+        baseFrequency = parseFloat(savedRootNote);
+        document.getElementById('baseFrequencyInput').value = baseFrequency;
+    }
+
+    const savedWaveform = localStorage.getItem('waveform');
+    if (savedWaveform) {
+        waveform = savedWaveform;
+        const waveformSelect = document.getElementById('waveformSelect');
+        waveformSelect.value = waveform;
+        // Trigger the change event to update the waveform
+        handleWaveformChange({ target: waveformSelect });
+    }
+}
+
+// Load settings on DOM content loaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
 });
