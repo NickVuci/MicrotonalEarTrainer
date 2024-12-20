@@ -39,6 +39,9 @@ let lastOddLimit = parseInt(document.getElementById('oddLimit').value) || 5;
 let correctScore = parseInt(localStorage.getItem('correctScore')) || 0;
 let incorrectScore = parseInt(localStorage.getItem('incorrectScore')) || 0;
 
+// Add lastInterval to store the last played interval
+let lastInterval = null;
+
 // Update score display on load
 document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
 document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
@@ -57,407 +60,6 @@ function debounce(func, delay) {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => func.apply(context, args), delay);
     };
-}
-
-// Event listener for EDO Value Change with Inline Error Messages
-document.getElementById('edoValue').addEventListener('input', debounce(() => {
-    const edoValueInput = document.getElementById('edoValue').value;
-    const edoValueError = document.getElementById('edoValueError');
-
-    // Allow empty input without an error (handled on blur)
-    if (edoValueInput === '') {
-        edoValueError.textContent = '';
-        return;
-    }
-
-    const edoValue = parseInt(edoValueInput);
-    if (edoValue < 1 || isNaN(edoValue)) {
-        edoValueError.textContent = 'Minimum value is 1.';
-        // Reset to last valid or default if invalid
-        document.getElementById('edoValue').value = lastEdoValue;
-    } else {
-        edoValueError.textContent = '';
-        lastEdoValue = edoValue; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-        // Save to localStorage if needed
-    }
-}, 300));
-
-// Event listener for EDO Value Blur
-document.getElementById('edoValue').addEventListener('blur', () => {
-    const edoValueInput = document.getElementById('edoValue').value;
-    const edoValueError = document.getElementById('edoValueError');
-    if (edoValueInput === '') {
-        document.getElementById('edoValue').value = lastEdoValue;
-        edoValueError.textContent = '';
-    }
-});
-
-// Event listener for JI Prime Limit Change with Inline Error Messages
-document.getElementById('primeLimit').addEventListener('input', debounce(() => {
-    const primeLimitInput = document.getElementById('primeLimit').value;
-    const primeLimitError = document.getElementById('primeLimitError');
-
-    // Allow empty input without an error (handled on blur)
-    if (primeLimitInput === '') {
-        primeLimitError.textContent = '';
-        return;
-    }
-
-    const primeLimit = parseInt(primeLimitInput);
-    if (primeLimit < 2 || isNaN(primeLimit)) {
-        primeLimitError.textContent = 'Minimum value is 2.';
-        // Reset to last valid or default if invalid
-        document.getElementById('primeLimit').value = lastPrimeLimit;
-    } else {
-        primeLimitError.textContent = '';
-        lastPrimeLimit = primeLimit; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-        // Save to localStorage if needed
-    }
-}, 300));
-
-// Event listener for JI Prime Limit Blur
-document.getElementById('primeLimit').addEventListener('blur', () => {
-    const primeLimitInput = document.getElementById('primeLimit').value;
-    const primeLimitError = document.getElementById('primeLimitError');
-    if (primeLimitInput === '') {
-        document.getElementById('primeLimit').value = lastPrimeLimit;
-        primeLimitError.textContent = '';
-    }
-});
-
-// Event listener for JI Odd Limit Change with Inline Error Messages
-document.getElementById('oddLimit').addEventListener('input', debounce(() => {
-    const oddLimitInput = document.getElementById('oddLimit').value;
-    const oddLimitError = document.getElementById('oddLimitError');
-
-    // Allow empty input without an error (handled on blur)
-    if (oddLimitInput === '') {
-        oddLimitError.textContent = '';
-        return;
-    }
-
-    const oddLimit = parseInt(oddLimitInput);
-    if (oddLimit < 3 || isNaN(oddLimit)) {
-        oddLimitError.textContent = 'Minimum value is 3.';
-        // Reset to last valid or default if invalid
-        document.getElementById('oddLimit').value = lastOddLimit;
-    } else {
-        oddLimitError.textContent = '';
-        lastOddLimit = oddLimit; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-        // Save to localStorage if needed
-    }
-}, 300));
-
-// Event listener for JI Odd Limit Blur
-document.getElementById('oddLimit').addEventListener('blur', () => {
-    const oddLimitInput = document.getElementById('oddLimit').value;
-    const oddLimitError = document.getElementById('oddLimitError');
-    if (oddLimitInput === '') {
-        document.getElementById('oddLimit').value = lastOddLimit;
-        oddLimitError.textContent = '';
-    }
-});
-
-// Add lastInterval to store the last played interval
-let lastInterval = null;
-
-// Event listeners for tuning selection
-document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
-    elem.addEventListener('change', debounce(() => {
-        if (elem.value === 'edo') {
-            document.getElementById('edoSettings').style.display = 'block';
-            document.getElementById('jiSettings').style.display = 'none';
-        } else {
-            document.getElementById('edoSettings').style.display = 'none';
-            document.getElementById('jiSettings').style.display = 'block';
-        }
-        generateIntervals();
-        displayIntervals();
-    }, 300));
-});
-
-// Event listener for EDO Value Change
-document.getElementById('edoValue').addEventListener('input', debounce(() => {
-    const edoValueInput = document.getElementById('edoValue').value;
-
-    // Allow empty input without an error (handled on blur)
-    if (edoValueInput === '') {
-        return;
-    }
-
-    const edoValue = parseInt(edoValueInput);
-    if (edoValue < 1 || isNaN(edoValue)) {
-        alert('Please enter a valid EDO value (minimum 1).');
-        // Reset to last valid or default if invalid
-        document.getElementById('edoValue').value = lastEdoValue;
-    } else {
-        lastEdoValue = edoValue; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-    }
-}, 300));
-
-// Event listener for EDO Value Blur
-document.getElementById('edoValue').addEventListener('blur', () => {
-    const edoValueInput = document.getElementById('edoValue').value;
-    if (edoValueInput === '') {
-        // Reset to last valid or default value
-        document.getElementById('edoValue').value = lastEdoValue;
-    }
-});
-
-// Event listener for JI Prime Limit Change
-document.getElementById('primeLimit').addEventListener('input', debounce(() => {
-    const primeLimitInput = document.getElementById('primeLimit').value;
-
-    // Allow empty input without an error (handled on blur)
-    if (primeLimitInput === '') {
-        return;
-    }
-
-    const primeLimit = parseInt(primeLimitInput);
-    if (primeLimit < 2 || isNaN(primeLimit)) {
-        alert('Please enter a valid Prime Limit (minimum 2).');
-        // Reset to last valid or default if invalid
-        document.getElementById('primeLimit').value = lastPrimeLimit;
-    } else {
-        lastPrimeLimit = primeLimit; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-    }
-}, 300));
-
-// Event listener for JI Prime Limit Blur
-document.getElementById('primeLimit').addEventListener('blur', () => {
-    const primeLimitInput = document.getElementById('primeLimit').value;
-    if (primeLimitInput === '') {
-        // Reset to last valid or default value
-        document.getElementById('primeLimit').value = lastPrimeLimit;
-    }
-});
-
-// Event listener for JI Odd Limit Change
-document.getElementById('oddLimit').addEventListener('input', debounce(() => {
-    const oddLimitInput = document.getElementById('oddLimit').value;
-
-    // Allow empty input without an error (handled on blur)
-    if (oddLimitInput === '') {
-        return;
-    }
-
-    const oddLimit = parseInt(oddLimitInput);
-    if (oddLimit < 3 || isNaN(oddLimit)) {
-        alert('Please enter a valid Odd Limit (minimum 3).');
-        // Reset to last valid or default if invalid
-        document.getElementById('oddLimit').value = lastOddLimit;
-    } else {
-        lastOddLimit = oddLimit; // Update last valid value
-        generateIntervals();
-        displayIntervals();
-    }
-}, 300));
-
-// Event listener for JI Odd Limit Blur
-document.getElementById('oddLimit').addEventListener('blur', () => {
-    const oddLimitInput = document.getElementById('oddLimit').value;
-    if (oddLimitInput === '') {
-        // Reset to last valid or default value
-        document.getElementById('oddLimit').value = lastOddLimit;
-    }
-});
-
-// Event listener for root frequency input
-document.getElementById('baseFrequencyInput').addEventListener('change', () => {
-    const input = parseFloat(document.getElementById('baseFrequencyInput').value);
-    if (isNaN(input) || input < 20 || input > 20000) {
-        alert('Please enter a valid frequency between 20 Hz and 20,000 Hz.');
-        // Reset to default if invalid
-        baseFrequency = 440.0;
-        document.getElementById('baseFrequencyInput').value = baseFrequency.toFixed(1);
-    } else {
-        baseFrequency = input;
-    }
-});
-
-// Event listener for label toggle
-document.getElementById('labelToggle').addEventListener('change', () => {
-    showCents = document.getElementById('labelToggle').checked;
-    displayIntervals();
-});
-
-// Function to generate intervals based on current settings
-function generateIntervals() {
-    const tuning = document.querySelector('input[name="tuning"]:checked').value;
-    intervals = [];
-    if (tuning === 'edo') {
-        const edoValue = parseInt(document.getElementById('edoValue').value);
-        if (edoValue < 1 || isNaN(edoValue)) {
-            alert('Please enter a valid EDO value.');
-            return;
-        }
-        generateEDOIntervals(edoValue);
-    } else {
-        const primeLimit = parseInt(document.getElementById('primeLimit').value);
-        const oddLimit = parseInt(document.getElementById('oddLimit').value);
-        if (primeLimit < 2 || oddLimit < 3 || isNaN(primeLimit) || isNaN(oddLimit)) {
-            alert('Please enter valid prime and odd limits.');
-            return;
-        }
-        generateJIIntervals(primeLimit, oddLimit);
-    }
-    // No need to call displayIntervals() here as it's called in the event listeners
-}
-
-// Function to generate EDO intervals with dynamic octave labeling
-function generateEDOIntervals(edo) {
-    // Add the octave interval with "n\edo" notation
-    intervals.push({
-        label: `${edo}\\${edo}`, // e.g., "12\12" for 12-EDO
-        ratio: 2,
-        cents: 1200, // 2/1 is always 1200 cents
-        index: 0
-    });
-    // Add other EDO intervals with "n\edo" notation
-    for (let i = 1; i < edo; i++) {
-        const ratio = Math.pow(2, i / edo);
-        const cents = 1200 * i / edo;
-        intervals.push({
-            label: `${i}\\${edo}`, // e.g., "1\12", "2\12", etc.
-            ratio: ratio,
-            cents: cents,
-            index: i
-        });
-    }
-}
-
-// Function to calculate the odd limit of a number
-function getOddLimit(number) {
-    while (number % 2 === 0) {
-        number /= 2;
-    }
-    return number;
-}
-
-// Function to generate JI intervals
-function generateJIIntervals(primeLimit, oddLimit) {
-    // Add the octave interval
-    intervals.push({
-        label: '2/1',
-        ratio: 2,
-        cents: 1200 // 2/1 is always 1200 cents
-    });
-
-    const primes = getPrimesUpTo(primeLimit);
-    const fractions = [];
-
-    for (let numerator = 2; numerator <= oddLimit * 2; numerator++) {
-        for (let denominator = 1; denominator < numerator; denominator++) {
-            const ratioValue = numerator / denominator;
-            if (ratioValue > 2) continue; // Only within an octave
-
-            const simplified = simplifyFraction(numerator, denominator);
-            if (simplified.numerator <= simplified.denominator) continue; // Ensure numerator > denominator after simplification
-
-            // Skip if the simplified fraction is the octave (2/1) to prevent duplication
-            if (simplified.numerator === 2 && simplified.denominator === 1) continue;
-
-            // Calculate the odd limit according to the given definition
-            const oddLimitNumerator = getOddLimit(simplified.numerator);
-            const oddLimitDenominator = getOddLimit(simplified.denominator);
-            const actualOddLimit = Math.max(oddLimitNumerator, oddLimitDenominator);
-
-            if (actualOddLimit > oddLimit) continue; // Skip if it exceeds the defined odd limit
-
-            if (isValidJIInterval(simplified.numerator, simplified.denominator, primes)) {
-                const ratio = simplified.numerator / simplified.denominator;
-                const cents = 1200 * Math.log2(ratio);
-                fractions.push({
-                    label: `${simplified.numerator}/${simplified.denominator}`,
-                    ratio: ratio,
-                    cents: cents
-                });
-            }
-        }
-    }
-
-    // Remove duplicates based on ratio
-    const uniqueFractions = [];
-    const seenRatios = new Set();
-    fractions.forEach(fraction => {
-        if (!seenRatios.has(fraction.ratio.toFixed(5))) {
-            uniqueFractions.push(fraction);
-            seenRatios.add(fraction.ratio.toFixed(5));
-        }
-    });
-
-    // Sort by cents
-    uniqueFractions.sort((a, b) => a.cents - b.cents);
-
-    intervals = intervals.concat(uniqueFractions);
-}
-
-// Function to check if a JI interval is valid based on prime factors
-function isValidJIInterval(numerator, denominator, primes) {
-    const factorsNum = getPrimeFactors(numerator);
-    const factorsDen = getPrimeFactors(denominator);
-    for (let factor in factorsNum) {
-        if (!primes.includes(parseInt(factor))) return false;
-    }
-    for (let factor in factorsDen) {
-        if (!primes.includes(parseInt(factor))) return false;
-    }
-    return true;
-}
-
-// Function to get prime numbers up to a limit
-function getPrimesUpTo(limit) {
-    const sieve = [];
-    const primes = [];
-    for (let i = 2; i <= limit; i++) {
-        if (!sieve[i]) {
-            primes.push(i);
-            for (let j = i * 2; j <= limit; j += i) {
-                sieve[j] = true;
-            }
-        }
-    }
-    return primes;
-}
-
-// Function to get prime factors of a number
-function getPrimeFactors(n) {
-    const factors = {};
-    let divisor = 2;
-    while (n >= 2) {
-        if (n % divisor === 0) {
-            factors[divisor] = (factors[divisor] || 0) + 1;
-            n = n / divisor;
-        } else {
-            divisor++;
-        }
-    }
-    return factors;
-}
-
-// Function to simplify a fraction
-function simplifyFraction(numerator, denominator) {
-    const gcdValue = gcd(numerator, denominator);
-    return {
-        numerator: numerator / gcdValue,
-        denominator: denominator / gcdValue
-    };
-}
-
-// Function to compute the Greatest Common Divisor (GCD)
-function gcd(a, b) {
-    if (!b) return a;
-    return gcd(b, a % b);
 }
 
 // Function to display intervals around the circle with minimal touch between circles
@@ -751,12 +353,6 @@ function playSingleNote(index) {
     currentPlayingNote = oscillator;
 }
 
-// Add the setIntervalsFromScala function here
-function setIntervalsFromScala(scalaIntervals) {
-    intervals = scalaIntervals;
-    displayIntervals(); // Update the display with new intervals
-}
-
 // Function to disable interval points (prevent further clicks)
 function disableIntervalPoints() {
     const points = document.querySelectorAll('.interval-point');
@@ -801,6 +397,19 @@ document.getElementById('repeatButton').addEventListener('click', () => {
 
 // Settings 
 
+// Event listener for root frequency input
+document.getElementById('baseFrequencyInput').addEventListener('change', () => {
+    const input = parseFloat(document.getElementById('baseFrequencyInput').value);
+    if (isNaN(input) || input < 20 || input > 20000) {
+        alert('Please enter a valid frequency between 20 Hz and 20,000 Hz.');
+        // Reset to default if invalid
+        baseFrequency = 440.0;
+        document.getElementById('baseFrequencyInput').value = baseFrequency.toFixed(1);
+    } else {
+        baseFrequency = input;
+    }
+});
+
 // Event listener for Waveform Selection Change
 document.getElementById('waveformSelect').addEventListener('change', () => {
     waveform = document.getElementById('waveformSelect').value;
@@ -816,6 +425,12 @@ document.getElementById('baseFrequencyInput').addEventListener('change', () => {
         generateIntervals();
         displayIntervals();
     }
+});
+
+// Event listener for label toggle
+document.getElementById('labelToggle').addEventListener('change', () => {
+    showCents = document.getElementById('labelToggle').checked;
+    displayIntervals();
 });
 
 // Save Settings to localStorage
@@ -845,4 +460,229 @@ function loadSettings() {
 // Load settings on DOM content loaded
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
+});
+
+// Interval Generation
+
+// Function to generate intervals based on Scala File
+function setIntervalsFromScala(scalaIntervals) {
+    intervals = scalaIntervals;
+    displayIntervals(); // Update the display with new intervals
+}
+
+// Function to generate intervals based on current settings
+function generateIntervals() {
+    const tuning = document.querySelector('input[name="tuning"]:checked').value;
+    intervals = [];
+    if (tuning === 'edo') {
+        const edoValue = parseInt(document.getElementById('edoValue').value);
+        if (edoValue < 1 || isNaN(edoValue)) {
+            alert('Please enter a valid EDO value.');
+            return;
+        }
+        generateEDOIntervals(edoValue);
+    } else {
+        const primeLimit = parseInt(document.getElementById('primeLimit').value);
+        const oddLimit = parseInt(document.getElementById('oddLimit').value);
+        if (primeLimit < 2 || oddLimit < 3 || isNaN(primeLimit) || isNaN(oddLimit)) {
+            alert('Please enter valid prime and odd limits.');
+            return;
+        }
+        generateJIIntervals(primeLimit, oddLimit);
+    }
+}
+
+// Function to generate EDO intervals with dynamic octave labeling
+function generateEDOIntervals(edo) {
+    // Add the octave interval with "n\edo" notation
+    intervals.push({
+        label: `${edo}\\${edo}`, // e.g., "12\12" for 12-EDO
+        ratio: 2,
+        cents: 1200, // 2/1 is always 1200 cents
+        index: 0
+    });
+    // Add other EDO intervals with "n\edo" notation
+    for (let i = 1; i < edo; i++) {
+        const ratio = Math.pow(2, i / edo);
+        const cents = 1200 * i / edo;
+        intervals.push({
+            label: `${i}\\${edo}`, // e.g., "1\12", "2\12", etc.
+            ratio: ratio,
+            cents: cents,
+            index: i
+        });
+    }
+}
+
+// Function to calculate the odd limit of a number
+function getOddLimit(number) {
+    while (number % 2 === 0) {
+        number /= 2;
+    }
+    return number;
+}
+
+// Function to generate JI intervals
+function generateJIIntervals(primeLimit, oddLimit) {
+    // Add the octave interval
+    intervals.push({
+        label: '2/1',
+        ratio: 2,
+        cents: 1200 // 2/1 is always 1200 cents
+    });
+
+    const primes = getPrimesUpTo(primeLimit);
+    const fractions = [];
+
+    for (let numerator = 2; numerator <= oddLimit * 2; numerator++) {
+        for (let denominator = 1; denominator < numerator; denominator++) {
+            const ratioValue = numerator / denominator;
+            if (ratioValue > 2) continue; // Only within an octave
+
+            const simplified = simplifyFraction(numerator, denominator);
+            if (simplified.numerator <= simplified.denominator) continue; // Ensure numerator > denominator after simplification
+
+            // Skip if the simplified fraction is the octave (2/1) to prevent duplication
+            if (simplified.numerator === 2 && simplified.denominator === 1) continue;
+
+            // Calculate the odd limit according to the given definition
+            const oddLimitNumerator = getOddLimit(simplified.numerator);
+            const oddLimitDenominator = getOddLimit(simplified.denominator);
+            const actualOddLimit = Math.max(oddLimitNumerator, oddLimitDenominator);
+
+            if (actualOddLimit > oddLimit) continue; // Skip if it exceeds the defined odd limit
+
+            if (isValidJIInterval(simplified.numerator, simplified.denominator, primes)) {
+                const ratio = simplified.numerator / simplified.denominator;
+                const cents = 1200 * Math.log2(ratio);
+                fractions.push({
+                    label: `${simplified.numerator}/${simplified.denominator}`,
+                    ratio: ratio,
+                    cents: cents
+                });
+            }
+        }
+    }
+
+    // Remove duplicates based on ratio
+    const uniqueFractions = [];
+    const seenRatios = new Set();
+    fractions.forEach(fraction => {
+        if (!seenRatios.has(fraction.ratio.toFixed(5))) {
+            uniqueFractions.push(fraction);
+            seenRatios.add(fraction.ratio.toFixed(5));
+        }
+    });
+
+    // Sort by cents
+    uniqueFractions.sort((a, b) => a.cents - b.cents);
+
+    intervals = intervals.concat(uniqueFractions);
+}
+
+// Function to check if a JI interval is valid based on prime factors
+function isValidJIInterval(numerator, denominator, primes) {
+    const factorsNum = getPrimeFactors(numerator);
+    const factorsDen = getPrimeFactors(denominator);
+    for (let factor in factorsNum) {
+        if (!primes.includes(parseInt(factor))) return false;
+    }
+    for (let factor in factorsDen) {
+        if (!primes.includes(parseInt(factor))) return false;
+    }
+    return true;
+}
+
+// Function to get prime numbers up to a limit
+function getPrimesUpTo(limit) {
+    const sieve = [];
+    const primes = [];
+    for (let i = 2; i <= limit; i++) {
+        if (!sieve[i]) {
+            primes.push(i);
+            for (let j = i * 2; j <= limit; j += i) {
+                sieve[j] = true;
+            }
+        }
+    }
+    return primes;
+}
+
+// Function to get prime factors of a number
+function getPrimeFactors(n) {
+    const factors = {};
+    let divisor = 2;
+    while (n >= 2) {
+        if (n % divisor === 0) {
+            factors[divisor] = (factors[divisor] || 0) + 1;
+            n = n / divisor;
+        } else {
+            divisor++;
+        }
+    }
+    return factors;
+}
+
+// Function to simplify a fraction
+function simplifyFraction(numerator, denominator) {
+    const gcdValue = gcd(numerator, denominator);
+    return {
+        numerator: numerator / gcdValue,
+        denominator: denominator / gcdValue
+    };
+}
+
+// Function to compute the Greatest Common Divisor (GCD)
+function gcd(a, b) {
+    if (!b) return a;
+    return gcd(b, a % b);
+}
+
+// Event listeners for tuning selection
+document.querySelectorAll('input[name="tuning"]').forEach((elem) => {
+    elem.addEventListener('change', debounce(() => {
+        if (elem.value === 'edo') {
+            document.getElementById('edoSettings').style.display = 'block';
+            document.getElementById('jiSettings').style.display = 'none';
+        } else {
+            document.getElementById('edoSettings').style.display = 'none';
+            document.getElementById('jiSettings').style.display = 'block';
+        }
+        generateIntervals();
+        displayIntervals();
+    }, 300));
+});
+
+function handleInputChange(inputId, lastValidValue, minValue, validationMessage, generateFunc) {
+    const inputElement = document.getElementById(inputId);
+    inputElement.addEventListener('input', debounce(() => {
+        const inputValue = inputElement.value;
+        if (inputValue === '') return;
+        const value = parseInt(inputValue);
+        if (value < minValue || isNaN(value)) {
+            alert(validationMessage);
+            inputElement.value = lastValidValue;
+        } else {
+            lastValidValue = value;
+            generateFunc();
+        }
+    }, 300));
+    inputElement.addEventListener('blur', () => {
+        if (inputElement.value === '') {
+            inputElement.value = lastValidValue;
+        }
+    });
+}
+
+handleInputChange('edoValue', lastEdoValue, 1, 'Please enter a valid EDO value.', () => {
+    generateIntervals();
+    displayIntervals();
+});
+handleInputChange('primeLimit', lastPrimeLimit, 2, 'Please enter a valid Prime Limit (minimum 2).', () => {
+    generateIntervals();
+    displayIntervals();
+});
+handleInputChange('oddLimit', lastOddLimit, 3, 'Please enter a valid Odd Limit (minimum 3).', () => {
+    generateIntervals();
+    displayIntervals();
 });
