@@ -5,8 +5,8 @@ const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
 // Define attack and decay times
-const attackTime = 0.1; //  attack
-const decayTime = 0.1; //  decay
+const attackTime = 0.015; //  attack
+const decayTime = 0.015; //  decay
 
 let intervals = [];
 let correctInterval = null;
