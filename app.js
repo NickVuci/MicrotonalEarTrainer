@@ -5,8 +5,8 @@ const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
 // Define attack and decay times
-const attackTime = 0.15; // 100ms attack
-const decayTime = 0.13; // 500ms decay
+const attackTime = 0.1; //  attack
+const decayTime = 0.1; //  decay
 
 let intervals = [];
 let correctInterval = null;
@@ -82,11 +82,6 @@ function saveSettings() {
     localStorage.setItem('rootNote', baseFrequency.toString());
     localStorage.setItem('waveform', waveform);
 }
-
-// Load settings on DOM content loaded
-document.addEventListener('DOMContentLoaded', () => {
-    loadSettings();
-});
 
 // Event listener for EDO Value Change with Inline Error Messages
 document.getElementById('edoValue').addEventListener('input', debounce(() => {
@@ -208,16 +203,6 @@ document.getElementById('baseFrequencyInput').addEventListener('change', () => {
         generateIntervals();
         displayIntervals();
     }
-});
-
-// Event listener for Reset Score Button
-document.getElementById('resetScoreButton').addEventListener('click', () => {
-    correctScore = 0;
-    incorrectScore = 0;
-    document.getElementById('correctScore').textContent = `Correct: ${correctScore}`;
-    document.getElementById('incorrectScore').textContent = `Incorrect: ${incorrectScore}`;
-    localStorage.setItem('correctScore', correctScore.toString());
-    localStorage.setItem('incorrectScore', incorrectScore.toString());
 });
 
 function handleIntervalClick(event) {
@@ -436,8 +421,6 @@ function getOddLimit(number) {
     }
     return number;
 }
-
-
 
 // Function to generate JI intervals
 function generateJIIntervals(primeLimit, oddLimit) {
@@ -675,15 +658,6 @@ document.getElementById('playButton').addEventListener('click', () => {
     resetIntervalPoints();
 });
 
-// Add event listener to the repeat button
-document.getElementById('repeatButton').addEventListener('click', () => {
-    if (lastInterval) {
-        playInterval(lastInterval.ratio, lastInterval.method);
-    } else {
-        console.warn('No interval to repeat.');
-    }
-});
-
 // Function to play the selected interval based on the chosen method
 function playInterval(ratio, method) {
     // Stop any current single note before playback
@@ -730,30 +704,34 @@ function playInterval(ratio, method) {
         oscillator2.start();
     } else if (method === 'ascending') {
         // Play root first, then interval
+        const noteDuration = duration / 2; // Each note plays for half the total duration
+    
         oscillator1.start();
-        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
-        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
-        gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator1.stop(audioCtx.currentTime + duration / 2 + 0.02); // Add short fade-out period
-        
-        oscillator2.start(audioCtx.currentTime + duration / 2);
-        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
-        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime); // Reset gain for decay
+        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + attackTime); // Ramp up again
+        gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + noteDuration - decayTime); // Ramp down again
+        oscillator1.stop(audioCtx.currentTime + noteDuration); // Stop after noteDuration
+    
+        oscillator2.start(audioCtx.currentTime + noteDuration);
+        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + noteDuration); // Reset gain for decay
+        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + noteDuration + attackTime); // Ramp up again
         gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator2.stop(audioCtx.currentTime + duration + 0.02); // Add short fade-out period
+        oscillator2.stop(audioCtx.currentTime + duration); // Stop after total duration
     } else if (method === 'descending') {
         // Play interval first, then root
+        const noteDuration = duration / 2; // Each note plays for half the total duration
+    
         oscillator2.start();
-        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
-        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
-        gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator2.stop(audioCtx.currentTime + duration / 2 + 0.02); // Add short fade-out period
-        
-        oscillator1.start(audioCtx.currentTime + duration / 2);
-        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + duration / 2); // Reset gain for decay
-        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + duration / 2 + attackTime); // Ramp up again
+        gainNode2.gain.setValueAtTime(0, audioCtx.currentTime); // Reset gain for decay
+        gainNode2.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + attackTime); // Ramp up again
+        gainNode2.gain.linearRampToValueAtTime(0, audioCtx.currentTime + noteDuration - decayTime); // Ramp down again
+        oscillator2.stop(audioCtx.currentTime + noteDuration); // Stop after noteDuration
+    
+        oscillator1.start(audioCtx.currentTime + noteDuration);
+        gainNode1.gain.setValueAtTime(0, audioCtx.currentTime + noteDuration); // Reset gain for decay
+        gainNode1.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + noteDuration + attackTime); // Ramp up again
         gainNode1.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration - decayTime); // Ramp down again
-        oscillator1.stop(audioCtx.currentTime + duration + 0.02); // Add short fade-out period
+        oscillator1.stop(audioCtx.currentTime + duration); // Stop after total duration
     }
 
     // Store oscillators for potential future control
@@ -884,9 +862,23 @@ function resetIntervalPoints() {
     });
 }
 
+// Load settings on DOM content loaded
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+});
+
 // Event listener for Reset Score button
 document.getElementById('resetScoreButton').addEventListener('click', () => {
     if (typeof resetScores === 'function') {
         resetScores();
+    }
+});
+
+// Add event listener to the repeat button
+document.getElementById('repeatButton').addEventListener('click', () => {
+    if (lastInterval) {
+        playInterval(lastInterval.ratio, lastInterval.method);
+    } else {
+        console.warn('No interval to repeat.');
     }
 });
