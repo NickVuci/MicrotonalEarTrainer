@@ -60,12 +60,13 @@
         <!-- Root Frequency Input -->
         <div id="rootFrequency">
             <label>Root Frequency (Hz):
-                <input type="number" id="baseFrequencyInput" value="440.0" min="20" max="20000" step="0.1" maxlength="6">
+                <input type="number" id="baseFrequencyInput" value="220.0" min="20" max="20000" step="0.1" maxlength="6">
             </label>
+            <br>
             <!-- Root Note Randomization -->
             <label>
                 <input type="checkbox" id="randomizeRootNote">
-                Randomize Root Note
+                Randomize Root Note (only works for EDOs)
             </label>
         </div>
         <br>
@@ -106,6 +107,7 @@
     <script src="randomRoot.js"></script> <!-- Random Root Note Script -->
     <script src="app.js"></script>
     <script src="scaleUpload.js"></script> <!-- Scala File Upload Script -->
+    <script src="settings.js"></script>
 
     <!-- Inline Script to Automatically Generate 12-EDO Intervals on Page Load -->
     <script>

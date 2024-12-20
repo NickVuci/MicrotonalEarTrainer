@@ -3,6 +3,12 @@
 // Listen for Scala file upload
 document.getElementById('scalaFile').addEventListener('change', handleScalaFileUpload);
 
+// Function to generate intervals based on Scala File
+function setIntervalsFromScala(scalaIntervals) {
+    intervals = scalaIntervals;
+    displayIntervals(); // Update the display with new intervals
+}
+
 // Handle Scala file upload
 function handleScalaFileUpload(event) {
     const file = event.target.files[0];

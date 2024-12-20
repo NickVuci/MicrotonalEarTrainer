@@ -2,8 +2,8 @@
 
 // Function to randomize the root note based on the input root note and tuning
 function randomizeRootNote() {
-    const rootNote = parseFloat(document.getElementById('baseFrequencyInput').value) || 440.0; // Get the root note from input
-    const tuning = parseInt(document.getElementById('edoValue').value) || 12; // Get the tuning value from input
+    const rootNote = parseFloat(document.getElementById('baseFrequencyInput').value) // Get the root note from input
+    const tuning = parseInt(document.getElementById('edoValue').value) // Get the tuning value from input
     const randomFactor = Math.floor(Math.random() * tuning);
     const newRootNote = rootNote * Math.pow(2, randomFactor / tuning);
     return newRootNote;
